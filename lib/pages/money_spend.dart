@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:money_app/main.dart';
+import 'package:money_app/model_util/records_util.dart';
+import 'package:money_app/notifiers/app_state.dart';
+import 'package:money_app/tools/capitalize.dart';
+import 'package:money_app/widgets/empty.dart';
 import 'package:money_app/widgets/list_records_of_day.dart';
 import 'package:money_app/widgets/list_records_percents.dart';
-import 'package:money_app/widgets/record_percent.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:money_app/app_colors.dart';
-import 'package:money_app/models/record.dart';
-import 'package:money_app/widgets/gray_text.dart';
 import 'package:money_app/widgets/normal_text.dart';
-import 'package:money_app/widgets/record.dart';
 import 'package:money_app/widgets/top_cards.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
+import '../model/model.dart';
 
 class MoneySpendPage extends StatefulWidget {
   const MoneySpendPage({super.key});
@@ -31,11 +33,32 @@ class _MoneySpendPageState extends State<MoneySpendPage> {
   int _currentPage = 0;
   TextEditingController dateFrom = TextEditingController();
   TextEditingController dateTo = TextEditingController();
+  updateRecords() {
+    Provider.of<AppState>(context, listen: false).refreshRecords();
+  }
+
+  initRecords() {
+    final appState = Provider.of<AppState>(context, listen: false);
+    dateFrom.text = DateFormat('dd MMM').format(appState.dateFrom);
+    dateTo.text = DateFormat('dd MMM').format(appState.dateTo);
+    updateRecords();
+  }
+
+  updateDateFrom(DateTime date) {
+    Provider.of<AppState>(context, listen: false).updateDateFrom(date);
+    updateRecords();
+    dateFrom.text = DateFormat('dd MMM').format(date);
+  }
+
+  updateDateTo(DateTime date) {
+    Provider.of<AppState>(context, listen: false).updateDateTo(date);
+    updateRecords();
+    dateTo.text = DateFormat('dd MMM').format(date);
+  }
 
   @override
   void initState() {
-    dateFrom.text = "1 Mar";
-    dateTo.text = "5 Mar";
+    initRecords();
     super.initState();
   }
 
@@ -91,14 +114,15 @@ class _MoneySpendPageState extends State<MoneySpendPage> {
                   DateTime? pickedDate = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(),
-                    firstDate: DateTime(2015),
-                    lastDate: DateTime(2101),
+                    firstDate: DateTime(DateTime.now().year - 30),
+                    lastDate: DateTime(DateTime.now().year + 5),
                   );
+                  if (pickedDate != null) updateDateFrom(pickedDate);
                 },
-                decoration: InputDecoration(border: InputBorder.none),
+                decoration: const InputDecoration(border: InputBorder.none),
               ),
             ),
-            Expanded(
+            const Expanded(
                 child: Icon(
               Icons.arrow_forward,
             )),
@@ -113,9 +137,9 @@ class _MoneySpendPageState extends State<MoneySpendPage> {
                     firstDate: DateTime(2015),
                     lastDate: DateTime(2101),
                   );
+                  if (pickedDate != null) updateDateTo(pickedDate);
                 },
-                decoration: InputDecoration(
-                    fillColor: AppColors.white_1, border: InputBorder.none),
+                decoration: const InputDecoration(border: InputBorder.none),
               ),
             ),
           ],
@@ -164,50 +188,54 @@ class _MoneySpendPageState extends State<MoneySpendPage> {
 }
 
 class ChartRecords extends StatelessWidget {
-  ChartRecords({
+  const ChartRecords({
     super.key,
   });
 
-  final Map<String, double> dataMap = {
-    "Flutter": 5,
-    "React": 3,
-    "Xamarin": 2,
-    "Ionic": 2,
-  };
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+    final mode = capitalize(appState.currentModeString);
+    final Map<String, double> dataMap = {};
+    final records = appState.records.recordsByCategories;
+    for (var record in records) {
+      dataMap[record.category.title] = record.percentage;
+    }
+    final colors = records.map((record) => record.category.color).toList();
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: ListView(children: [
-        PieChart(
-          dataMap: dataMap,
-          chartType: ChartType.ring,
-          chartRadius: MediaQuery.of(context).size.width / 3.2,
-          ringStrokeWidth: 16,
-          chartLegendSpacing: 90,
-          baseChartColor: Colors.grey[300]!,
-          centerText: "Expenses",
-          centerTextStyle: GoogleFonts.manrope(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
-          ),
-          legendOptions: LegendOptions(
-            showLegendsInRow: false,
-            legendPosition: LegendPosition.right,
-            showLegends: true,
-            legendShape: BoxShape.circle,
-            legendTextStyle: GoogleFonts.manrope(
+        if (dataMap.isNotEmpty)
+          PieChart(
+            dataMap: dataMap,
+            colorList: colors,
+            chartType: ChartType.ring,
+            chartRadius: MediaQuery.of(context).size.width / 3.2,
+            ringStrokeWidth: 16,
+            chartLegendSpacing: 90,
+            baseChartColor: Colors.grey[300]!,
+            centerTextStyle: GoogleFonts.manrope(
               fontSize: 14,
               fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+            legendOptions: LegendOptions(
+              showLegendsInRow: false,
+              legendPosition: LegendPosition.right,
+              showLegends: true,
+              legendShape: BoxShape.circle,
+              legendTextStyle: GoogleFonts.manrope(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            chartValuesOptions: const ChartValuesOptions(
+              showChartValues: false,
             ),
           ),
-          chartValuesOptions: ChartValuesOptions(
-            showChartValues: false,
-          ),
-        ),
         const SizedBox(height: 20),
-        ListRecordsPercents(),
+        const ListRecordsPercents(),
       ]),
     );
   }
@@ -225,7 +253,17 @@ class ListRecords extends StatelessWidget {
       child: ListView(children: [
         const TopCards(),
         const SizedBox(height: 20),
-        ListRecordsOfDay()
+        Consumer<AppState>(
+          builder: (context, appState, child) {
+            return Column(
+              children: appState.records.recordsByDays.isNotEmpty
+                  ? appState.records.recordsByDays
+                      .map((recordsOfDay) => ListRecordsOfDay(recordsOfDay))
+                      .toList()
+                  : const [Empty()],
+            );
+          },
+        )
       ]),
     );
   }

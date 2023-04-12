@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:money_app/notifiers/app_state.dart';
 import 'package:money_app/notifiers/theme.dart';
 import 'package:money_app/pages/add_record.dart';
+import 'package:money_app/pages/edit_record.dart';
 import 'package:money_app/pages/money_spend.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:money_app/app_colors.dart';
-import 'package:money_app/models/record.dart';
-import 'package:money_app/widgets/gray_text.dart';
-import 'package:money_app/widgets/normal_text.dart';
-import 'package:money_app/widgets/record.dart';
-import 'package:money_app/widgets/top_cards.dart';
-import './widgets/top_card.dart';
-import './pages/money_spend.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => AppState(),
+    child: const MyApp(),
+  ));
 }
 
 ThemeManager themeManager = ThemeManager();
@@ -70,6 +67,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/money-spend': (context) => const MoneySpendPage(),
         '/money-spend/add-record': (context) => const AddRecordPage(),
+        '/money-spend/edit-record': (context) => EditRecordPage(context),
       },
       themeMode: themeManager.themeMode,
       darkTheme: ThemeData(
@@ -82,7 +80,6 @@ class _MyAppState extends State<MyApp> {
             fontFamily: GoogleFonts.manrope().fontFamily,
             bodyColor: Colors.white),
         // inputDecorationTheme:InputDecorationTheme()
-        scaffoldBackgroundColor: AppColors.primary,
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white,
@@ -95,50 +92,58 @@ class _MyAppState extends State<MyApp> {
             backgroundColor: AppColors.yellow,
           ),
         ),
-        colorScheme: const ColorScheme.light(
-          brightness: Brightness.dark,
-          primary: AppColors.dark_1,
-          onPrimary: AppColors.white_1,
+        dialogBackgroundColor: AppColors.dark_2,
+        bottomAppBarTheme: const BottomAppBarTheme(
+          color: AppColors.dark_2,
+        ),
+        drawerTheme: DrawerThemeData(
+          backgroundColor: AppColors.dark_2,
+        ),
+        scaffoldBackgroundColor: AppColors.primary,
+        colorScheme: const ColorScheme.dark(
+          // brightness: Brightness.dark,
+          primary: AppColors.dark_3,
+          onPrimary: AppColors.dark_5,
           secondary: AppColors.yellow,
-          onSecondary: Colors.white,
-          surface: AppColors.primary,
-          onSurface: AppColors.white_1,
+          onSecondary: AppColors.dark_3,
+          surface: AppColors.dark_1,
+          onSurface: AppColors.light_3,
+          background: AppColors.dark_2,
+          onBackground: AppColors.dark_5,
+          onTertiary: AppColors.dark_4,
           error: Colors.red,
           onError: Colors.red,
-          background: AppColors.dark_1,
-          onBackground: Colors.white,
-          onTertiary: AppColors.textSecondaryDark,
         ),
       ),
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.white_1,
+          backgroundColor: AppColors.light_4,
           foregroundColor: AppColors.primary,
           elevation: 0,
         ),
         textTheme: Theme.of(context).textTheme.apply(
               fontFamily: GoogleFonts.manrope().fontFamily,
             ),
-        scaffoldBackgroundColor: AppColors.white_1,
+        scaffoldBackgroundColor: AppColors.light_4,
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.dark_1,
             backgroundColor: AppColors.yellow,
+            foregroundColor: AppColors.light_1,
           ),
         ),
         colorScheme: const ColorScheme.light(
           brightness: Brightness.light,
-          primary: AppColors.primary,
-          onPrimary: AppColors.white_1,
+          primary: AppColors.light_1,
+          onPrimary: AppColors.light_4,
           secondary: AppColors.yellow,
-          onSecondary: AppColors.lightYellow,
-          onSurface: Color.fromARGB(255, 63, 60, 60),
-          surface: Color.fromARGB(255, 34, 33, 27),
+          onSecondary: AppColors.light_3,
+          surface: AppColors.light_1,
+          onSurface: AppColors.light_2,
+          background: AppColors.light_5,
+          onBackground: AppColors.light_1,
+          onTertiary: AppColors.textSecondaryLight,
           error: Colors.red,
           onError: Colors.red,
-          background: Colors.white,
-          onBackground: AppColors.primary,
-          onTertiary: AppColors.textSecondaryLight,
         ),
       ),
       home: const MoneySpendPage(),

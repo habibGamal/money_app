@@ -9,23 +9,26 @@ import 'package:money_app/widgets/category.dart';
 import 'package:money_app/widgets/gray_text.dart';
 import 'package:money_app/widgets/keyboard_dismiss.dart';
 import 'package:intl/intl.dart';
-import 'package:money_app/widgets/normal_text.dart';
 import 'package:provider/provider.dart';
-import '../widgets/bold_text.dart';
 
-class AddRecordPage extends StatefulWidget {
-  const AddRecordPage({super.key});
+class EditRecordPage extends StatefulWidget {
+  final BuildContext _context;
+
+  EditRecordPage(this._context, {super.key});
+
+  late final Record record =
+      ModalRoute.of(_context)!.settings.arguments as Record;
 
   @override
-  State<AddRecordPage> createState() => _AddRecordPageState();
+  State<EditRecordPage> createState() => _EditRecordPageState();
 }
 
-class _AddRecordPageState extends State<AddRecordPage> {
+class _EditRecordPageState extends State<EditRecordPage> {
   final _formKey = GlobalKey<FormState>();
-  int _selectedCategory = 1;
-  String _amount = '';
-  String _note = '';
-  DateTime _date = DateTime.now();
+  late int _selectedCategory = widget.record.category_id!;
+  late String _amount = widget.record.amount.toString();
+  late String _note = widget.record.note!;
+  late DateTime _date = widget.record.date!;
   changeSelectedCategory(int index) {
     setState(() {
       _selectedCategory = index;
@@ -33,19 +36,30 @@ class _AddRecordPageState extends State<AddRecordPage> {
   }
 
   onSave(bool mode) async {
-    Record.withFields(
-      mode,
-      double.parse(_amount),
-      _selectedCategory,
-      _note,
-      _date,
-    ).save();
-    final records = await Record().select().where('type = $mode').toList();
+    widget.record.amount = double.parse(_amount);
+    widget.record.category_id = _selectedCategory;
+    widget.record.note = _note;
+    widget.record.date = _date;
+    await widget.record.save();
     updateRecords();
   }
 
   updateRecords() {
     Provider.of<AppState>(context, listen: false).refreshRecords();
+  }
+
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_selectedCategory > 7) {
+        scrollController.jumpTo(
+          160,
+        );
+      }
+    });
   }
 
   @override
@@ -54,9 +68,10 @@ class _AddRecordPageState extends State<AddRecordPage> {
     final categoriesList = appState.currentMode == Mode.expense
         ? expenseCategories
         : incomeCategories;
+
     return Scaffold(
       appBar: AppBar(
-        title: BoldText('Add record to ${appState.currentModeString}s'),
+        title: const BoldText('Edit the record'),
       ),
       body: KeyboardDismiss(
         child: Form(
@@ -69,6 +84,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     height: appState.currentMode == Mode.expense ? 200 : 100,
                     child: GridView(
                         scrollDirection: Axis.horizontal,
+                        controller: scrollController,
                         gridDelegate:
                             const SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 160,
@@ -94,6 +110,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       }
                       print(newValue);
                     },
+                    initialValue: _amount,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Amount of money',
@@ -123,6 +140,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                   TextFormField(
                     onSaved: (newValue) =>
                         {if (newValue != null) _note = newValue},
+                    initialValue: _note,
                     decoration: InputDecoration(
                       labelText: 'Note (optional)',
                       labelStyle: GoogleFonts.manrope(
@@ -157,7 +175,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                           onPressed: () async {
                             final date = await showDatePicker(
                               context: context,
-                              initialDate: DateTime.now(),
+                              initialDate: _date,
                               firstDate: DateTime(2000),
                               lastDate: DateTime(2100),
                             );
@@ -176,7 +194,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Added successfully')),
+                          const SnackBar(content: Text('Edited successfully')),
                         );
                         _formKey.currentState!.save();
                         onSave(appState.currentRecordType);
