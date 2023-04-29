@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:money_app/app_colors.dart';
 import 'package:money_app/notifiers/app_state.dart';
+import 'package:money_app/tools/translate.dart';
 import 'package:money_app/widgets/top_card.dart';
 import 'package:provider/provider.dart';
 
@@ -30,28 +30,29 @@ class _TopCardsState extends State<TopCards> {
 
   @override
   Widget build(BuildContext context) {
+    final t = translate(context);
     return Consumer<AppState>(
       builder: (context, appState, child) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TopCard(
-            title: 'Income',
+            title: t('Income', 'الدخل'),
             value: '\$ ${appState.totalIncome}',
-            color: Color.fromARGB(255, 40, 170, 51),
+            color: const Color.fromARGB(255, 40, 170, 51),
             isSelected: appState.currentMode == Mode.income,
             cardId: 'Income',
             callback: () => modeToIncome(),
           ),
           TopCard(
-            title: 'Expense',
+            title: t('Expense', 'المصروفات'),
             value: '\$ ${appState.totalExpense}',
-            color: Color.fromARGB(255, 216, 61, 66),
+            color: const Color.fromARGB(255, 216, 61, 66),
             isSelected: appState.currentMode == Mode.expense,
             cardId: 'Expense',
             callback: () => modeToExpence(),
           ),
           TopCard(
-            title: 'Balance',
+            title: t('Balance', 'الرصيد'),
             value: appState.balance >= 0
                 ? '\$ ${appState.balance}'
                 : '-\$ ${appState.balance.abs()}',

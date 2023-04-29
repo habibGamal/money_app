@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_app/app_colors.dart';
-import 'package:money_app/widgets/normal_text.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:money_app/widgets/gray_text.dart';
+import 'package:money_app/tools/translate.dart';
+import 'package:money_app/widgets/small_text.dart';
 import '../model_util/category.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -18,12 +17,13 @@ class CategoryCard extends StatelessWidget {
   get isSelected => category.id == selectedCategory;
   @override
   Widget build(BuildContext context) {
+    final t = translate(context);
     return InkWell(
       onTap: () => callback(category.id),
       child: Stack(alignment: Alignment.center, children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
@@ -37,19 +37,14 @@ class CategoryCard extends StatelessWidget {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: category.color,
+                  color: category.getColor(context),
                   borderRadius: BorderRadius.circular(1000),
                 ),
                 child: Center(child: category.icon),
               ),
               const SizedBox(height: 10),
               FittedBox(
-                child: Text(category.title,
-                    style: GoogleFonts.manrope(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onBackground,
-                    )),
+                child: SmallText(t(category.title, category.titleAr)),
               )
             ],
           ),
@@ -62,12 +57,12 @@ class CategoryCard extends StatelessWidget {
                 width: double.infinity,
                 height: double.infinity,
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(57, 230, 229, 229),
+                  color: const Color.fromARGB(57, 230, 229, 229),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(6.0),
+              const Padding(
+                padding: EdgeInsets.all(6.0),
                 child: Icon(
                   Icons.check_circle,
                   color: AppColors.yellow,

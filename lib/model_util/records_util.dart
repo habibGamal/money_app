@@ -28,7 +28,7 @@ class RecordWithCategory {
         .firstWhere((category) => category.id == recordDB.category_id);
   }
 
-  get category {
+  Category get category {
     if (recordDB.type == RecordType.expense) {
       return getCategoryFrom(expenseCategories);
     }
@@ -49,7 +49,7 @@ class RecordsByDay {
     return total;
   }
 
-  get day {
+  String get dayEn {
     // if it's today, return 'Today'
     if (DateFormat('dd MMM').format(DateTime.now()) == _day) {
       return 'Today';
@@ -61,6 +61,20 @@ class RecordsByDay {
       return 'Yesterday';
     }
     return _day;
+  }
+
+  String get dayAr {
+    // if it's today, return 'Today'
+    if (DateFormat('dd MMM').format(DateTime.now()) == _day) {
+      return 'اليوم';
+    }
+    // if it's yesterday, return 'Yesterday'
+    if (DateFormat('dd MMM')
+            .format(DateTime.now().subtract(const Duration(days: 1))) ==
+        _day) {
+      return 'امس';
+    }
+    return DateFormat('dd MMM', 'ar').format(records.first.date!).toString();
   }
 
   RecordsByDay(this._day, this.records);

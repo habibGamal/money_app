@@ -47,6 +47,85 @@ class TableRecord extends SqfEntityTableBase {
     return _instance = _instance ?? TableRecord();
   }
 }
+
+// SavingTarget TABLE
+class TableSavingTarget extends SqfEntityTableBase {
+  TableSavingTarget() {
+    // declare properties of EntityTable
+    tableName = 'savingTargets';
+    primaryKeyName = 'id';
+    primaryKeyType = PrimaryKeyType.integer_auto_incremental;
+    useSoftDeleting = false;
+    // when useSoftDeleting is true, creates a field named 'isDeleted' on the table, and set to '1' this field when item deleted (does not hard delete)
+
+    // declare fields
+    fields = [
+      SqfEntityFieldBase('target_name', DbType.text, isNotNull: true),
+      SqfEntityFieldBase('target_amount', DbType.real, isNotNull: true),
+      SqfEntityFieldBase('no_of_months', DbType.integer, isNotNull: true),
+      SqfEntityFieldBase('note', DbType.text, defaultValue: ''),
+      SqfEntityFieldBase('start_date', DbType.date,
+          isNotNull: true, minValue: DateTime.parse('1900-01-01')),
+    ];
+    super.init();
+  }
+  static SqfEntityTableBase? _instance;
+  static SqfEntityTableBase get getInstance {
+    return _instance = _instance ?? TableSavingTarget();
+  }
+}
+
+// SavingTargetRecord TABLE
+class TableSavingTargetRecord extends SqfEntityTableBase {
+  TableSavingTargetRecord() {
+    // declare properties of EntityTable
+    tableName = 'savingTargetRecords';
+    primaryKeyName = 'id';
+    primaryKeyType = PrimaryKeyType.integer_auto_incremental;
+    useSoftDeleting = false;
+    // when useSoftDeleting is true, creates a field named 'isDeleted' on the table, and set to '1' this field when item deleted (does not hard delete)
+
+    // declare fields
+    fields = [
+      SqfEntityFieldBase('amount', DbType.real, isNotNull: true),
+      SqfEntityFieldBase('date', DbType.date,
+          isNotNull: true, minValue: DateTime.parse('1900-01-01')),
+      SqfEntityFieldRelationshipBase(
+          TableSavingTarget.getInstance, DeleteRule.CASCADE,
+          relationType: RelationType.ONE_TO_MANY,
+          fieldName: 'savingTargetsId',
+          defaultValue: 0),
+    ];
+    super.init();
+  }
+  static SqfEntityTableBase? _instance;
+  static SqfEntityTableBase get getInstance {
+    return _instance = _instance ?? TableSavingTargetRecord();
+  }
+}
+
+// Preference TABLE
+class TablePreference extends SqfEntityTableBase {
+  TablePreference() {
+    // declare properties of EntityTable
+    tableName = 'preferences';
+    primaryKeyName = 'id';
+    primaryKeyType = PrimaryKeyType.integer_auto_incremental;
+    useSoftDeleting = false;
+    // when useSoftDeleting is true, creates a field named 'isDeleted' on the table, and set to '1' this field when item deleted (does not hard delete)
+
+    // declare fields
+    fields = [
+      SqfEntityFieldBase('name', DbType.text, isNotNull: true),
+      SqfEntityFieldBase('value', DbType.text, isNotNull: true),
+    ];
+    super.init();
+  }
+  static SqfEntityTableBase? _instance;
+  static SqfEntityTableBase get getInstance {
+    return _instance = _instance ?? TablePreference();
+  }
+}
 // END TABLES
 
 // BEGIN SEQUENCES
@@ -79,6 +158,9 @@ class DBModel extends SqfEntityModelProvider {
     logFunction = dbModel.logFunction;
     databaseTables = [
       TableRecord.getInstance,
+      TableSavingTarget.getInstance,
+      TableSavingTargetRecord.getInstance,
+      TablePreference.getInstance,
     ];
 
     sequences = [
@@ -996,6 +1078,2718 @@ class RecordManager extends SqfEntityProvider {
 }
 
 //endregion RecordManager
+// region SavingTarget
+class SavingTarget extends TableBase {
+  SavingTarget(
+      {this.id,
+      this.target_name,
+      this.target_amount,
+      this.no_of_months,
+      this.note,
+      this.start_date}) {
+    _setDefaultValues();
+    softDeleteActivated = false;
+  }
+  SavingTarget.withFields(this.target_name, this.target_amount,
+      this.no_of_months, this.note, this.start_date) {
+    _setDefaultValues();
+  }
+  SavingTarget.withId(this.id, this.target_name, this.target_amount,
+      this.no_of_months, this.note, this.start_date) {
+    _setDefaultValues();
+  }
+  // fromMap v2.0
+  SavingTarget.fromMap(Map<String, dynamic> o, {bool setDefaultValues = true}) {
+    if (setDefaultValues) {
+      _setDefaultValues();
+    }
+    id = int.tryParse(o['id'].toString());
+    if (o['target_name'] != null) {
+      target_name = o['target_name'].toString();
+    }
+    if (o['target_amount'] != null) {
+      target_amount = double.tryParse(o['target_amount'].toString());
+    }
+    if (o['no_of_months'] != null) {
+      no_of_months = int.tryParse(o['no_of_months'].toString());
+    }
+    if (o['note'] != null) {
+      note = o['note'].toString();
+    }
+    if (o['start_date'] != null) {
+      start_date = int.tryParse(o['start_date'].toString()) != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              int.tryParse(o['start_date'].toString())!)
+          : DateTime.tryParse(o['start_date'].toString());
+    }
+  }
+  // FIELDS (SavingTarget)
+  int? id;
+  String? target_name;
+  double? target_amount;
+  int? no_of_months;
+  String? note;
+  DateTime? start_date;
+
+  // end FIELDS (SavingTarget)
+
+// COLLECTIONS & VIRTUALS (SavingTarget)
+  /// to load children of items to this field, use preload parameter. Ex: toList(preload:true) or toSingle(preload:true) or getById(preload:true)
+  /// You can also specify this object into certain preload fields!. Ex: toList(preload:true, preloadFields:['plSavingTargetRecords', 'plField2'..]) or so on..
+  List<SavingTargetRecord>? plSavingTargetRecords;
+
+  /// get SavingTargetRecord(s) filtered by id=savingTargetsId
+  SavingTargetRecordFilterBuilder? getSavingTargetRecords(
+      {List<String>? columnsToSelect, bool? getIsDeleted}) {
+    if (id == null) {
+      return null;
+    }
+    return SavingTargetRecord()
+        .select(columnsToSelect: columnsToSelect, getIsDeleted: getIsDeleted)
+        .savingTargetsId
+        .equals(id)
+        .and;
+  }
+
+// END COLLECTIONS & VIRTUALS (SavingTarget)
+
+  static const bool _softDeleteActivated = false;
+  SavingTargetManager? __mnSavingTarget;
+
+  SavingTargetManager get _mnSavingTarget {
+    return __mnSavingTarget = __mnSavingTarget ?? SavingTargetManager();
+  }
+
+  // METHODS
+  @override
+  Map<String, dynamic> toMap(
+      {bool forQuery = false, bool forJson = false, bool forView = false}) {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    if (target_name != null || !forView) {
+      map['target_name'] = target_name;
+    }
+    if (target_amount != null || !forView) {
+      map['target_amount'] = target_amount;
+    }
+    if (no_of_months != null || !forView) {
+      map['no_of_months'] = no_of_months;
+    }
+    if (note != null || !forView) {
+      map['note'] = note;
+    }
+    if (start_date != null) {
+      map['start_date'] = forJson
+          ? '$start_date!.year-$start_date!.month-$start_date!.day'
+          : forQuery
+              ? DateTime(start_date!.year, start_date!.month, start_date!.day)
+                  .millisecondsSinceEpoch
+              : start_date;
+    } else if (start_date != null || !forView) {
+      map['start_date'] = null;
+    }
+
+    return map;
+  }
+
+  @override
+  Future<Map<String, dynamic>> toMapWithChildren(
+      [bool forQuery = false,
+      bool forJson = false,
+      bool forView = false]) async {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    if (target_name != null || !forView) {
+      map['target_name'] = target_name;
+    }
+    if (target_amount != null || !forView) {
+      map['target_amount'] = target_amount;
+    }
+    if (no_of_months != null || !forView) {
+      map['no_of_months'] = no_of_months;
+    }
+    if (note != null || !forView) {
+      map['note'] = note;
+    }
+    if (start_date != null) {
+      map['start_date'] = forJson
+          ? '$start_date!.year-$start_date!.month-$start_date!.day'
+          : forQuery
+              ? DateTime(start_date!.year, start_date!.month, start_date!.day)
+                  .millisecondsSinceEpoch
+              : start_date;
+    } else if (start_date != null || !forView) {
+      map['start_date'] = null;
+    }
+
+// COLLECTIONS (SavingTarget)
+    if (!forQuery) {
+      map['SavingTargetRecords'] = await getSavingTargetRecords()!.toMapList();
+    }
+// END COLLECTIONS (SavingTarget)
+
+    return map;
+  }
+
+  /// This method returns Json String [SavingTarget]
+  @override
+  String toJson() {
+    return json.encode(toMap(forJson: true));
+  }
+
+  /// This method returns Json String [SavingTarget]
+  @override
+  Future<String> toJsonWithChilds() async {
+    return json.encode(await toMapWithChildren(false, true));
+  }
+
+  @override
+  List<dynamic> toArgs() {
+    return [
+      target_name,
+      target_amount,
+      no_of_months,
+      note,
+      start_date != null ? start_date!.millisecondsSinceEpoch : null
+    ];
+  }
+
+  @override
+  List<dynamic> toArgsWithIds() {
+    return [
+      id,
+      target_name,
+      target_amount,
+      no_of_months,
+      note,
+      start_date != null ? start_date!.millisecondsSinceEpoch : null
+    ];
+  }
+
+  static Future<List<SavingTarget>?> fromWebUrl(Uri uri,
+      {Map<String, String>? headers}) async {
+    try {
+      final response = await http.get(uri, headers: headers);
+      return await fromJson(response.body);
+    } catch (e) {
+      debugPrint(
+          'SQFENTITY ERROR SavingTarget.fromWebUrl: ErrorMessage: ${e.toString()}');
+      return null;
+    }
+  }
+
+  Future<http.Response> postUrl(Uri uri, {Map<String, String>? headers}) {
+    return http.post(uri, headers: headers, body: toJson());
+  }
+
+  static Future<List<SavingTarget>> fromJson(String jsonBody) async {
+    final Iterable list = await json.decode(jsonBody) as Iterable;
+    var objList = <SavingTarget>[];
+    try {
+      objList = list
+          .map((savingtarget) =>
+              SavingTarget.fromMap(savingtarget as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint(
+          'SQFENTITY ERROR SavingTarget.fromJson: ErrorMessage: ${e.toString()}');
+    }
+    return objList;
+  }
+
+  static Future<List<SavingTarget>> fromMapList(List<dynamic> data,
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields,
+      bool setDefaultValues = true}) async {
+    final List<SavingTarget> objList = <SavingTarget>[];
+    loadedFields = loadedFields ?? [];
+    for (final map in data) {
+      final obj = SavingTarget.fromMap(map as Map<String, dynamic>,
+          setDefaultValues: setDefaultValues);
+      // final List<String> _loadedFields = List<String>.from(loadedFields);
+
+      // RELATIONSHIPS PRELOAD CHILD
+      if (preload) {
+        loadedFields = loadedFields ?? [];
+        if (/*!_loadedfields!.contains('savingTargets.plSavingTargetRecords') && */ (preloadFields ==
+                null ||
+            preloadFields.contains('plSavingTargetRecords'))) {
+          /*_loadedfields!.add('savingTargets.plSavingTargetRecords'); */ obj
+                  .plSavingTargetRecords =
+              obj.plSavingTargetRecords ??
+                  await obj.getSavingTargetRecords()!.toList(
+                      preload: preload,
+                      preloadFields: preloadFields,
+                      loadParents: false /*, loadedFields:_loadedFields*/);
+        }
+      } // END RELATIONSHIPS PRELOAD CHILD
+
+      objList.add(obj);
+    }
+    return objList;
+  }
+
+  /// returns SavingTarget by ID if exist, otherwise returns null
+  /// Primary Keys: int? id
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: getById(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: getById(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns>returns [SavingTarget] if exist, otherwise returns null
+  Future<SavingTarget?> getById(int? id,
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    if (id == null) {
+      return null;
+    }
+    SavingTarget? obj;
+    final data = await _mnSavingTarget.getById([id]);
+    if (data.length != 0) {
+      obj = SavingTarget.fromMap(data[0] as Map<String, dynamic>);
+
+      // RELATIONSHIPS PRELOAD CHILD
+      if (preload) {
+        loadedFields = loadedFields ?? [];
+        if (/*!_loadedfields!.contains('savingTargets.plSavingTargetRecords') && */ (preloadFields ==
+                null ||
+            preloadFields.contains('plSavingTargetRecords'))) {
+          /*_loadedfields!.add('savingTargets.plSavingTargetRecords'); */ obj
+                  .plSavingTargetRecords =
+              obj.plSavingTargetRecords ??
+                  await obj.getSavingTargetRecords()!.toList(
+                      preload: preload,
+                      preloadFields: preloadFields,
+                      loadParents: false /*, loadedFields:_loadedFields*/);
+        }
+      } // END RELATIONSHIPS PRELOAD CHILD
+    } else {
+      obj = null;
+    }
+    return obj;
+  }
+
+  /// Saves the (SavingTarget) object. If the id field is null, saves as a new record and returns new id, if id is not null then updates record
+  /// ignoreBatch = true as a default. Set ignoreBatch to false if you run more than one save() operation those are between batchStart and batchCommit
+  /// <returns>Returns id
+  @override
+  Future<int?> save({bool ignoreBatch = true}) async {
+    if (id == null || id == 0) {
+      id = await _mnSavingTarget.insert(this, ignoreBatch);
+    } else {
+      await _mnSavingTarget.update(this);
+    }
+
+    return id;
+  }
+
+  /// Saves the (SavingTarget) object. If the id field is null, saves as a new record and returns new id, if id is not null then updates record
+  /// ignoreBatch = true as a default. Set ignoreBatch to false if you run more than one save() operation those are between batchStart and batchCommit
+  /// <returns>Returns id
+  @override
+  Future<int?> saveOrThrow({bool ignoreBatch = true}) async {
+    if (id == null || id == 0) {
+      id = await _mnSavingTarget.insertOrThrow(this, ignoreBatch);
+
+      isInsert = true;
+    } else {
+      // id= await _upsert(); // removed in sqfentity_gen 1.3.0+6
+      await _mnSavingTarget.updateOrThrow(this);
+    }
+
+    return id;
+  }
+
+  /// saveAs SavingTarget. Returns a new Primary Key value of SavingTarget
+
+  /// <returns>Returns a new Primary Key value of SavingTarget
+  @override
+  Future<int?> saveAs({bool ignoreBatch = true}) async {
+    id = null;
+
+    return save(ignoreBatch: ignoreBatch);
+  }
+
+  /// saveAll method saves the sent List<SavingTarget> as a bulk in one transaction
+  /// Returns a <List<BoolResult>>
+  static Future<List<dynamic>> saveAll(List<SavingTarget> savingtargets,
+      {bool? exclusive, bool? noResult, bool? continueOnError}) async {
+    List<dynamic>? result = [];
+    // If there is no open transaction, start one
+    final isStartedBatch = await DBModel().batchStart();
+    for (final obj in savingtargets) {
+      await obj.save(ignoreBatch: false);
+    }
+    if (!isStartedBatch) {
+      result = await DBModel().batchCommit(
+          exclusive: exclusive,
+          noResult: noResult,
+          continueOnError: continueOnError);
+      for (int i = 0; i < savingtargets.length; i++) {
+        if (savingtargets[i].id == null) {
+          savingtargets[i].id = result![i] as int;
+        }
+      }
+    }
+    return result!;
+  }
+
+  /// Updates if the record exists, otherwise adds a new row
+  /// <returns>Returns id
+  @override
+  Future<int?> upsert({bool ignoreBatch = true}) async {
+    try {
+      final result = await _mnSavingTarget.rawInsert(
+          'INSERT OR REPLACE INTO savingTargets (id, target_name, target_amount, no_of_months, note, start_date)  VALUES (?,?,?,?,?,?)',
+          [
+            id,
+            target_name,
+            target_amount,
+            no_of_months,
+            note,
+            start_date != null ? start_date!.millisecondsSinceEpoch : null
+          ],
+          ignoreBatch);
+      if (result! > 0) {
+        saveResult = BoolResult(
+            success: true,
+            successMessage: 'SavingTarget id=$id updated successfully');
+      } else {
+        saveResult = BoolResult(
+            success: false, errorMessage: 'SavingTarget id=$id did not update');
+      }
+      return id;
+    } catch (e) {
+      saveResult = BoolResult(
+          success: false,
+          errorMessage: 'SavingTarget Save failed. Error: ${e.toString()}');
+      return null;
+    }
+  }
+
+  /// inserts or replaces the sent List<<SavingTarget>> as a bulk in one transaction.
+  /// upsertAll() method is faster then saveAll() method. upsertAll() should be used when you are sure that the primary key is greater than zero
+  /// Returns a BoolCommitResult
+  @override
+  Future<BoolCommitResult> upsertAll(List<SavingTarget> savingtargets,
+      {bool? exclusive, bool? noResult, bool? continueOnError}) async {
+    final results = await _mnSavingTarget.rawInsertAll(
+        'INSERT OR REPLACE INTO savingTargets (id, target_name, target_amount, no_of_months, note, start_date)  VALUES (?,?,?,?,?,?)',
+        savingtargets,
+        exclusive: exclusive,
+        noResult: noResult,
+        continueOnError: continueOnError);
+    return results;
+  }
+
+  /// Deletes SavingTarget
+
+  /// <returns>BoolResult res.success= true (Deleted), false (Could not be deleted)
+  @override
+  Future<BoolResult> delete([bool hardDelete = false]) async {
+    debugPrint('SQFENTITIY: delete SavingTarget invoked (id=$id)');
+    var result = BoolResult(success: false);
+    {
+      result = await SavingTargetRecord()
+          .select()
+          .savingTargetsId
+          .equals(id)
+          .and
+          .delete(hardDelete);
+    }
+    if (!result.success) {
+      return result;
+    }
+    if (!_softDeleteActivated || hardDelete) {
+      return _mnSavingTarget
+          .delete(QueryParams(whereString: 'id=?', whereArguments: [id]));
+    } else {
+      return _mnSavingTarget.updateBatch(
+          QueryParams(whereString: 'id=?', whereArguments: [id]),
+          {'isDeleted': 1});
+    }
+  }
+
+  @override
+  Future<BoolResult> recover([bool recoverChilds = true]) {
+    // not implemented because:
+    final msg =
+        'set useSoftDeleting:true in the table definition of [SavingTarget] to use this feature';
+    throw UnimplementedError(msg);
+  }
+
+  @override
+  SavingTargetFilterBuilder select(
+      {List<String>? columnsToSelect, bool? getIsDeleted}) {
+    return SavingTargetFilterBuilder(this, getIsDeleted)
+      ..qparams.selectColumns = columnsToSelect;
+  }
+
+  @override
+  SavingTargetFilterBuilder distinct(
+      {List<String>? columnsToSelect, bool? getIsDeleted}) {
+    return SavingTargetFilterBuilder(this, getIsDeleted)
+      ..qparams.selectColumns = columnsToSelect
+      ..qparams.distinct = true;
+  }
+
+  void _setDefaultValues() {
+    note = note ?? '';
+  }
+
+  @override
+  void rollbackPk() {
+    if (isInsert == true) {
+      id = null;
+    }
+  }
+
+  // END METHODS
+  // BEGIN CUSTOM CODE
+  /*
+      you can define customCode property of your SqfEntityTable constant. For example:
+      const tablePerson = SqfEntityTable(
+      tableName: 'person',
+      primaryKeyName: 'id',
+      primaryKeyType: PrimaryKeyType.integer_auto_incremental,
+      fields: [
+        SqfEntityField('firstName', DbType.text),
+        SqfEntityField('lastName', DbType.text),
+      ],
+      customCode: '''
+       String fullName()
+       { 
+         return '$firstName $lastName';
+       }
+      ''');
+     */
+  // END CUSTOM CODE
+}
+// endregion savingtarget
+
+// region SavingTargetField
+class SavingTargetField extends FilterBase {
+  SavingTargetField(SavingTargetFilterBuilder savingtargetFB)
+      : super(savingtargetFB);
+
+  @override
+  SavingTargetFilterBuilder equals(dynamic pValue) {
+    return super.equals(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder equalsOrNull(dynamic pValue) {
+    return super.equalsOrNull(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder isNull() {
+    return super.isNull() as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder contains(dynamic pValue) {
+    return super.contains(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder startsWith(dynamic pValue) {
+    return super.startsWith(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder endsWith(dynamic pValue) {
+    return super.endsWith(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder between(dynamic pFirst, dynamic pLast) {
+    return super.between(pFirst, pLast) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder greaterThan(dynamic pValue) {
+    return super.greaterThan(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder lessThan(dynamic pValue) {
+    return super.lessThan(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder greaterThanOrEquals(dynamic pValue) {
+    return super.greaterThanOrEquals(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder lessThanOrEquals(dynamic pValue) {
+    return super.lessThanOrEquals(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetFilterBuilder inValues(dynamic pValue) {
+    return super.inValues(pValue) as SavingTargetFilterBuilder;
+  }
+
+  @override
+  SavingTargetField get not {
+    return super.not as SavingTargetField;
+  }
+}
+// endregion SavingTargetField
+
+// region SavingTargetFilterBuilder
+class SavingTargetFilterBuilder extends ConjunctionBase {
+  SavingTargetFilterBuilder(SavingTarget obj, bool? getIsDeleted)
+      : super(obj, getIsDeleted) {
+    _mnSavingTarget = obj._mnSavingTarget;
+    _softDeleteActivated = obj.softDeleteActivated;
+  }
+
+  bool _softDeleteActivated = false;
+  SavingTargetManager? _mnSavingTarget;
+
+  /// put the sql keyword 'AND'
+  @override
+  SavingTargetFilterBuilder get and {
+    super.and;
+    return this;
+  }
+
+  /// put the sql keyword 'OR'
+  @override
+  SavingTargetFilterBuilder get or {
+    super.or;
+    return this;
+  }
+
+  /// open parentheses
+  @override
+  SavingTargetFilterBuilder get startBlock {
+    super.startBlock;
+    return this;
+  }
+
+  /// String whereCriteria, write raw query without 'where' keyword. Like this: 'field1 like 'test%' and field2 = 3'
+  @override
+  SavingTargetFilterBuilder where(String? whereCriteria,
+      {dynamic parameterValue}) {
+    super.where(whereCriteria, parameterValue: parameterValue);
+    return this;
+  }
+
+  /// page = page number,
+  /// pagesize = row(s) per page
+  @override
+  SavingTargetFilterBuilder page(int page, int pagesize) {
+    super.page(page, pagesize);
+    return this;
+  }
+
+  /// int count = LIMIT
+  @override
+  SavingTargetFilterBuilder top(int count) {
+    super.top(count);
+    return this;
+  }
+
+  /// close parentheses
+  @override
+  SavingTargetFilterBuilder get endBlock {
+    super.endBlock;
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='name, date'
+  /// Example 2: argFields = ['name', 'date']
+  @override
+  SavingTargetFilterBuilder orderBy(dynamic argFields) {
+    super.orderBy(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='field1, field2'
+  /// Example 2: argFields = ['field1', 'field2']
+  @override
+  SavingTargetFilterBuilder orderByDesc(dynamic argFields) {
+    super.orderByDesc(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='field1, field2'
+  /// Example 2: argFields = ['field1', 'field2']
+  @override
+  SavingTargetFilterBuilder groupBy(dynamic argFields) {
+    super.groupBy(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='name, date'
+  /// Example 2: argFields = ['name', 'date']
+  @override
+  SavingTargetFilterBuilder having(dynamic argFields) {
+    super.having(argFields);
+    return this;
+  }
+
+  SavingTargetField _setField(
+      SavingTargetField? field, String colName, DbType dbtype) {
+    return SavingTargetField(this)
+      ..param = DbParameter(
+          dbType: dbtype, columnName: colName, wStartBlock: openedBlock);
+  }
+
+  SavingTargetField? _id;
+  SavingTargetField get id {
+    return _id = _setField(_id, 'id', DbType.integer);
+  }
+
+  SavingTargetField? _target_name;
+  SavingTargetField get target_name {
+    return _target_name = _setField(_target_name, 'target_name', DbType.text);
+  }
+
+  SavingTargetField? _target_amount;
+  SavingTargetField get target_amount {
+    return _target_amount =
+        _setField(_target_amount, 'target_amount', DbType.real);
+  }
+
+  SavingTargetField? _no_of_months;
+  SavingTargetField get no_of_months {
+    return _no_of_months =
+        _setField(_no_of_months, 'no_of_months', DbType.integer);
+  }
+
+  SavingTargetField? _note;
+  SavingTargetField get note {
+    return _note = _setField(_note, 'note', DbType.text);
+  }
+
+  SavingTargetField? _start_date;
+  SavingTargetField get start_date {
+    return _start_date = _setField(_start_date, 'start_date', DbType.date);
+  }
+
+  /// Deletes List<SavingTarget> bulk by query
+  ///
+  /// <returns>BoolResult res.success= true (Deleted), false (Could not be deleted)
+  @override
+  Future<BoolResult> delete([bool hardDelete = false]) async {
+    buildParameters();
+    var r = BoolResult(success: false);
+    // Delete sub records where in (SavingTargetRecord) according to DeleteRule.CASCADE
+    final idListSavingTargetRecordBYsavingTargetsId =
+        toListPrimaryKeySQL(false);
+    final resSavingTargetRecordBYsavingTargetsId = await SavingTargetRecord()
+        .select()
+        .where(
+            'savingTargetsId IN (${idListSavingTargetRecordBYsavingTargetsId['sql']})',
+            parameterValue: idListSavingTargetRecordBYsavingTargetsId['args'])
+        .delete(hardDelete);
+    if (!resSavingTargetRecordBYsavingTargetsId.success) {
+      return resSavingTargetRecordBYsavingTargetsId;
+    }
+
+    if (_softDeleteActivated && !hardDelete) {
+      r = await _mnSavingTarget!.updateBatch(qparams, {'isDeleted': 1});
+    } else {
+      r = await _mnSavingTarget!.delete(qparams);
+    }
+    return r;
+  }
+
+  /// using:
+  /// update({'fieldName': Value})
+  /// fieldName must be String. Value is dynamic, it can be any of the (int, bool, String.. )
+  @override
+  Future<BoolResult> update(Map<String, dynamic> values) {
+    buildParameters();
+    if (qparams.limit! > 0 || qparams.offset! > 0) {
+      qparams.whereString =
+          'id IN (SELECT id from savingTargets ${qparams.whereString!.isNotEmpty ? 'WHERE ${qparams.whereString}' : ''}${qparams.limit! > 0 ? ' LIMIT ${qparams.limit}' : ''}${qparams.offset! > 0 ? ' OFFSET ${qparams.offset}' : ''})';
+    }
+    return _mnSavingTarget!.updateBatch(qparams, values);
+  }
+
+  /// This method always returns [SavingTarget] Obj if exist, otherwise returns null
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toSingle(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toSingle(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns> SavingTarget?
+  @override
+  Future<SavingTarget?> toSingle(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    buildParameters(pSize: 1);
+    final objFuture = _mnSavingTarget!.toList(qparams);
+    final data = await objFuture;
+    SavingTarget? obj;
+    if (data.isNotEmpty) {
+      obj = SavingTarget.fromMap(data[0] as Map<String, dynamic>);
+
+      // RELATIONSHIPS PRELOAD CHILD
+      if (preload) {
+        loadedFields = loadedFields ?? [];
+        if (/*!_loadedfields!.contains('savingTargets.plSavingTargetRecords') && */ (preloadFields ==
+                null ||
+            preloadFields.contains('plSavingTargetRecords'))) {
+          /*_loadedfields!.add('savingTargets.plSavingTargetRecords'); */ obj
+                  .plSavingTargetRecords =
+              obj.plSavingTargetRecords ??
+                  await obj.getSavingTargetRecords()!.toList(
+                      preload: preload,
+                      preloadFields: preloadFields,
+                      loadParents: false /*, loadedFields:_loadedFields*/);
+        }
+      } // END RELATIONSHIPS PRELOAD CHILD
+    } else {
+      obj = null;
+    }
+    return obj;
+  }
+
+  /// This method always returns [SavingTarget]
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toSingle(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toSingle(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns> SavingTarget?
+  @override
+  Future<SavingTarget> toSingleOrDefault(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    return await toSingle(
+            preload: preload,
+            preloadFields: preloadFields,
+            loadParents: loadParents,
+            loadedFields: loadedFields) ??
+        SavingTarget();
+  }
+
+  /// This method returns int. [SavingTarget]
+  /// <returns>int
+  @override
+  Future<int> toCount([VoidCallback Function(int c)? savingtargetCount]) async {
+    buildParameters();
+    qparams.selectColumns = ['COUNT(1) AS CNT'];
+    final savingtargetsFuture = await _mnSavingTarget!.toList(qparams);
+    final int count = savingtargetsFuture[0]['CNT'] as int;
+    if (savingtargetCount != null) {
+      savingtargetCount(count);
+    }
+    return count;
+  }
+
+  /// This method returns List<SavingTarget> [SavingTarget]
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toList(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toList(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns>List<SavingTarget>
+  @override
+  Future<List<SavingTarget>> toList(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    final data = await toMapList();
+    final List<SavingTarget> savingtargetsData = await SavingTarget.fromMapList(
+        data,
+        preload: preload,
+        preloadFields: preloadFields,
+        loadParents: loadParents,
+        loadedFields: loadedFields,
+        setDefaultValues: qparams.selectColumns == null);
+    return savingtargetsData;
+  }
+
+  /// This method returns Json String [SavingTarget]
+  @override
+  Future<String> toJson() async {
+    final list = <dynamic>[];
+    final data = await toList();
+    for (var o in data) {
+      list.add(o.toMap(forJson: true));
+    }
+    return json.encode(list);
+  }
+
+  /// This method returns Json String. [SavingTarget]
+  @override
+  Future<String> toJsonWithChilds() async {
+    final list = <dynamic>[];
+    final data = await toList();
+    for (var o in data) {
+      list.add(await o.toMapWithChildren(false, true));
+    }
+    return json.encode(list);
+  }
+
+  /// This method returns List<dynamic>. [SavingTarget]
+  /// <returns>List<dynamic>
+  @override
+  Future<List<dynamic>> toMapList() async {
+    buildParameters();
+    return await _mnSavingTarget!.toList(qparams);
+  }
+
+  /// This method returns Primary Key List SQL and Parameters retVal = Map<String,dynamic>. [SavingTarget]
+  /// retVal['sql'] = SQL statement string, retVal['args'] = whereArguments List<dynamic>;
+  /// <returns>List<String>
+  @override
+  Map<String, dynamic> toListPrimaryKeySQL([bool buildParams = true]) {
+    final Map<String, dynamic> _retVal = <String, dynamic>{};
+    if (buildParams) {
+      buildParameters();
+    }
+    _retVal['sql'] =
+        'SELECT `id` FROM savingTargets WHERE ${qparams.whereString}';
+    _retVal['args'] = qparams.whereArguments;
+    return _retVal;
+  }
+
+  /// This method returns Primary Key List<int>.
+  /// <returns>List<int>
+  @override
+  Future<List<int>> toListPrimaryKey([bool buildParams = true]) async {
+    if (buildParams) {
+      buildParameters();
+    }
+    final List<int> idData = <int>[];
+    qparams.selectColumns = ['id'];
+    final idFuture = await _mnSavingTarget!.toList(qparams);
+
+    final int count = idFuture.length;
+    for (int i = 0; i < count; i++) {
+      idData.add(idFuture[i]['id'] as int);
+    }
+    return idData;
+  }
+
+  /// Returns List<dynamic> for selected columns. Use this method for 'groupBy' with min,max,avg..  [SavingTarget]
+  /// Sample usage: (see EXAMPLE 4.2 at https://github.com/hhtokpinar/sqfEntity#group-by)
+  @override
+  Future<List<dynamic>> toListObject() async {
+    buildParameters();
+
+    final objectFuture = _mnSavingTarget!.toList(qparams);
+
+    final List<dynamic> objectsData = <dynamic>[];
+    final data = await objectFuture;
+    final int count = data.length;
+    for (int i = 0; i < count; i++) {
+      objectsData.add(data[i]);
+    }
+    return objectsData;
+  }
+
+  /// Returns List<String> for selected first column
+  /// Sample usage: await SavingTarget.select(columnsToSelect: ['columnName']).toListString()
+  @override
+  Future<List<String>> toListString(
+      [VoidCallback Function(List<String> o)? listString]) async {
+    buildParameters();
+
+    final objectFuture = _mnSavingTarget!.toList(qparams);
+
+    final List<String> objectsData = <String>[];
+    final data = await objectFuture;
+    final int count = data.length;
+    for (int i = 0; i < count; i++) {
+      objectsData.add(data[i][qparams.selectColumns![0]].toString());
+    }
+    if (listString != null) {
+      listString(objectsData);
+    }
+    return objectsData;
+  }
+}
+// endregion SavingTargetFilterBuilder
+
+// region SavingTargetFields
+class SavingTargetFields {
+  static TableField? _fId;
+  static TableField get id {
+    return _fId = _fId ?? SqlSyntax.setField(_fId, 'id', DbType.integer);
+  }
+
+  static TableField? _fTarget_name;
+  static TableField get target_name {
+    return _fTarget_name = _fTarget_name ??
+        SqlSyntax.setField(_fTarget_name, 'target_name', DbType.text);
+  }
+
+  static TableField? _fTarget_amount;
+  static TableField get target_amount {
+    return _fTarget_amount = _fTarget_amount ??
+        SqlSyntax.setField(_fTarget_amount, 'target_amount', DbType.real);
+  }
+
+  static TableField? _fNo_of_months;
+  static TableField get no_of_months {
+    return _fNo_of_months = _fNo_of_months ??
+        SqlSyntax.setField(_fNo_of_months, 'no_of_months', DbType.integer);
+  }
+
+  static TableField? _fNote;
+  static TableField get note {
+    return _fNote = _fNote ?? SqlSyntax.setField(_fNote, 'note', DbType.text);
+  }
+
+  static TableField? _fStart_date;
+  static TableField get start_date {
+    return _fStart_date = _fStart_date ??
+        SqlSyntax.setField(_fStart_date, 'start_date', DbType.date);
+  }
+}
+// endregion SavingTargetFields
+
+//region SavingTargetManager
+class SavingTargetManager extends SqfEntityProvider {
+  SavingTargetManager()
+      : super(DBModel(),
+            tableName: _tableName,
+            primaryKeyList: _primaryKeyList,
+            whereStr: _whereStr);
+  static const String _tableName = 'savingTargets';
+  static const List<String> _primaryKeyList = ['id'];
+  static const String _whereStr = 'id=?';
+}
+
+//endregion SavingTargetManager
+// region SavingTargetRecord
+class SavingTargetRecord extends TableBase {
+  SavingTargetRecord({this.id, this.amount, this.date, this.savingTargetsId}) {
+    _setDefaultValues();
+    softDeleteActivated = false;
+  }
+  SavingTargetRecord.withFields(this.amount, this.date, this.savingTargetsId) {
+    _setDefaultValues();
+  }
+  SavingTargetRecord.withId(
+      this.id, this.amount, this.date, this.savingTargetsId) {
+    _setDefaultValues();
+  }
+  // fromMap v2.0
+  SavingTargetRecord.fromMap(Map<String, dynamic> o,
+      {bool setDefaultValues = true}) {
+    if (setDefaultValues) {
+      _setDefaultValues();
+    }
+    id = int.tryParse(o['id'].toString());
+    if (o['amount'] != null) {
+      amount = double.tryParse(o['amount'].toString());
+    }
+    if (o['date'] != null) {
+      date = int.tryParse(o['date'].toString()) != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              int.tryParse(o['date'].toString())!)
+          : DateTime.tryParse(o['date'].toString());
+    }
+    savingTargetsId = int.tryParse(o['savingTargetsId'].toString());
+
+    // RELATIONSHIPS FromMAP
+    plSavingTarget = o['savingTarget'] != null
+        ? SavingTarget.fromMap(o['savingTarget'] as Map<String, dynamic>)
+        : null;
+    // END RELATIONSHIPS FromMAP
+  }
+  // FIELDS (SavingTargetRecord)
+  int? id;
+  double? amount;
+  DateTime? date;
+  int? savingTargetsId;
+
+  // end FIELDS (SavingTargetRecord)
+
+// RELATIONSHIPS (SavingTargetRecord)
+  /// to load parent of items to this field, use preload parameter ex: toList(preload:true) or toSingle(preload:true) or getById(preload:true)
+  /// You can also specify this object into certain preload fields!. Ex: toList(preload:true, preloadFields:['plSavingTarget', 'plField2'..]) or so on..
+  SavingTarget? plSavingTarget;
+
+  /// get SavingTarget By SavingTargetsId
+  Future<SavingTarget?> getSavingTarget(
+      {bool loadParents = false, List<String>? loadedFields}) async {
+    final _obj = await SavingTarget().getById(savingTargetsId,
+        loadParents: loadParents, loadedFields: loadedFields);
+    return _obj;
+  }
+  // END RELATIONSHIPS (SavingTargetRecord)
+
+  static const bool _softDeleteActivated = false;
+  SavingTargetRecordManager? __mnSavingTargetRecord;
+
+  SavingTargetRecordManager get _mnSavingTargetRecord {
+    return __mnSavingTargetRecord =
+        __mnSavingTargetRecord ?? SavingTargetRecordManager();
+  }
+
+  // METHODS
+  @override
+  Map<String, dynamic> toMap(
+      {bool forQuery = false, bool forJson = false, bool forView = false}) {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    if (amount != null || !forView) {
+      map['amount'] = amount;
+    }
+    if (date != null) {
+      map['date'] = forJson
+          ? '$date!.year-$date!.month-$date!.day'
+          : forQuery
+              ? DateTime(date!.year, date!.month, date!.day)
+                  .millisecondsSinceEpoch
+              : date;
+    } else if (date != null || !forView) {
+      map['date'] = null;
+    }
+    if (savingTargetsId != null) {
+      map['savingTargetsId'] = forView
+          ? plSavingTarget == null
+              ? savingTargetsId
+              : plSavingTarget!.target_name
+          : savingTargetsId;
+    } else if (savingTargetsId != null || !forView) {
+      map['savingTargetsId'] = null;
+    }
+
+    return map;
+  }
+
+  @override
+  Future<Map<String, dynamic>> toMapWithChildren(
+      [bool forQuery = false,
+      bool forJson = false,
+      bool forView = false]) async {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    if (amount != null || !forView) {
+      map['amount'] = amount;
+    }
+    if (date != null) {
+      map['date'] = forJson
+          ? '$date!.year-$date!.month-$date!.day'
+          : forQuery
+              ? DateTime(date!.year, date!.month, date!.day)
+                  .millisecondsSinceEpoch
+              : date;
+    } else if (date != null || !forView) {
+      map['date'] = null;
+    }
+    if (savingTargetsId != null) {
+      map['savingTargetsId'] = forView
+          ? plSavingTarget == null
+              ? savingTargetsId
+              : plSavingTarget!.target_name
+          : savingTargetsId;
+    } else if (savingTargetsId != null || !forView) {
+      map['savingTargetsId'] = null;
+    }
+
+    return map;
+  }
+
+  /// This method returns Json String [SavingTargetRecord]
+  @override
+  String toJson() {
+    return json.encode(toMap(forJson: true));
+  }
+
+  /// This method returns Json String [SavingTargetRecord]
+  @override
+  Future<String> toJsonWithChilds() async {
+    return json.encode(await toMapWithChildren(false, true));
+  }
+
+  @override
+  List<dynamic> toArgs() {
+    return [
+      amount,
+      date != null ? date!.millisecondsSinceEpoch : null,
+      savingTargetsId
+    ];
+  }
+
+  @override
+  List<dynamic> toArgsWithIds() {
+    return [
+      id,
+      amount,
+      date != null ? date!.millisecondsSinceEpoch : null,
+      savingTargetsId
+    ];
+  }
+
+  static Future<List<SavingTargetRecord>?> fromWebUrl(Uri uri,
+      {Map<String, String>? headers}) async {
+    try {
+      final response = await http.get(uri, headers: headers);
+      return await fromJson(response.body);
+    } catch (e) {
+      debugPrint(
+          'SQFENTITY ERROR SavingTargetRecord.fromWebUrl: ErrorMessage: ${e.toString()}');
+      return null;
+    }
+  }
+
+  Future<http.Response> postUrl(Uri uri, {Map<String, String>? headers}) {
+    return http.post(uri, headers: headers, body: toJson());
+  }
+
+  static Future<List<SavingTargetRecord>> fromJson(String jsonBody) async {
+    final Iterable list = await json.decode(jsonBody) as Iterable;
+    var objList = <SavingTargetRecord>[];
+    try {
+      objList = list
+          .map((savingtargetrecord) => SavingTargetRecord.fromMap(
+              savingtargetrecord as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint(
+          'SQFENTITY ERROR SavingTargetRecord.fromJson: ErrorMessage: ${e.toString()}');
+    }
+    return objList;
+  }
+
+  static Future<List<SavingTargetRecord>> fromMapList(List<dynamic> data,
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields,
+      bool setDefaultValues = true}) async {
+    final List<SavingTargetRecord> objList = <SavingTargetRecord>[];
+    loadedFields = loadedFields ?? [];
+    for (final map in data) {
+      final obj = SavingTargetRecord.fromMap(map as Map<String, dynamic>,
+          setDefaultValues: setDefaultValues);
+      // final List<String> _loadedFields = List<String>.from(loadedFields);
+
+      // RELATIONSHIPS PRELOAD
+      if (preload || loadParents) {
+        loadedFields = loadedFields ?? [];
+        if ((preloadFields == null ||
+            loadParents ||
+            preloadFields.contains('plSavingTarget'))) {
+          obj.plSavingTarget = obj.plSavingTarget ??
+              await obj.getSavingTarget(loadParents: loadParents);
+        }
+      } // END RELATIONSHIPS PRELOAD
+
+      objList.add(obj);
+    }
+    return objList;
+  }
+
+  /// returns SavingTargetRecord by ID if exist, otherwise returns null
+  /// Primary Keys: int? id
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: getById(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: getById(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns>returns [SavingTargetRecord] if exist, otherwise returns null
+  Future<SavingTargetRecord?> getById(int? id,
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    if (id == null) {
+      return null;
+    }
+    SavingTargetRecord? obj;
+    final data = await _mnSavingTargetRecord.getById([id]);
+    if (data.length != 0) {
+      obj = SavingTargetRecord.fromMap(data[0] as Map<String, dynamic>);
+
+      // RELATIONSHIPS PRELOAD
+      if (preload || loadParents) {
+        loadedFields = loadedFields ?? [];
+        if ((preloadFields == null ||
+            loadParents ||
+            preloadFields.contains('plSavingTarget'))) {
+          obj.plSavingTarget = obj.plSavingTarget ??
+              await obj.getSavingTarget(loadParents: loadParents);
+        }
+      } // END RELATIONSHIPS PRELOAD
+    } else {
+      obj = null;
+    }
+    return obj;
+  }
+
+  /// Saves the (SavingTargetRecord) object. If the id field is null, saves as a new record and returns new id, if id is not null then updates record
+  /// ignoreBatch = true as a default. Set ignoreBatch to false if you run more than one save() operation those are between batchStart and batchCommit
+  /// <returns>Returns id
+  @override
+  Future<int?> save({bool ignoreBatch = true}) async {
+    if (id == null || id == 0) {
+      id = await _mnSavingTargetRecord.insert(this, ignoreBatch);
+    } else {
+      await _mnSavingTargetRecord.update(this);
+    }
+
+    return id;
+  }
+
+  /// Saves the (SavingTargetRecord) object. If the id field is null, saves as a new record and returns new id, if id is not null then updates record
+  /// ignoreBatch = true as a default. Set ignoreBatch to false if you run more than one save() operation those are between batchStart and batchCommit
+  /// <returns>Returns id
+  @override
+  Future<int?> saveOrThrow({bool ignoreBatch = true}) async {
+    if (id == null || id == 0) {
+      id = await _mnSavingTargetRecord.insertOrThrow(this, ignoreBatch);
+
+      isInsert = true;
+    } else {
+      // id= await _upsert(); // removed in sqfentity_gen 1.3.0+6
+      await _mnSavingTargetRecord.updateOrThrow(this);
+    }
+
+    return id;
+  }
+
+  /// saveAs SavingTargetRecord. Returns a new Primary Key value of SavingTargetRecord
+
+  /// <returns>Returns a new Primary Key value of SavingTargetRecord
+  @override
+  Future<int?> saveAs({bool ignoreBatch = true}) async {
+    id = null;
+
+    return save(ignoreBatch: ignoreBatch);
+  }
+
+  /// saveAll method saves the sent List<SavingTargetRecord> as a bulk in one transaction
+  /// Returns a <List<BoolResult>>
+  static Future<List<dynamic>> saveAll(
+      List<SavingTargetRecord> savingtargetrecords,
+      {bool? exclusive,
+      bool? noResult,
+      bool? continueOnError}) async {
+    List<dynamic>? result = [];
+    // If there is no open transaction, start one
+    final isStartedBatch = await DBModel().batchStart();
+    for (final obj in savingtargetrecords) {
+      await obj.save(ignoreBatch: false);
+    }
+    if (!isStartedBatch) {
+      result = await DBModel().batchCommit(
+          exclusive: exclusive,
+          noResult: noResult,
+          continueOnError: continueOnError);
+      for (int i = 0; i < savingtargetrecords.length; i++) {
+        if (savingtargetrecords[i].id == null) {
+          savingtargetrecords[i].id = result![i] as int;
+        }
+      }
+    }
+    return result!;
+  }
+
+  /// Updates if the record exists, otherwise adds a new row
+  /// <returns>Returns id
+  @override
+  Future<int?> upsert({bool ignoreBatch = true}) async {
+    try {
+      final result = await _mnSavingTargetRecord.rawInsert(
+          'INSERT OR REPLACE INTO savingTargetRecords (id, amount, date, savingTargetsId)  VALUES (?,?,?,?)',
+          [
+            id,
+            amount,
+            date != null ? date!.millisecondsSinceEpoch : null,
+            savingTargetsId
+          ],
+          ignoreBatch);
+      if (result! > 0) {
+        saveResult = BoolResult(
+            success: true,
+            successMessage: 'SavingTargetRecord id=$id updated successfully');
+      } else {
+        saveResult = BoolResult(
+            success: false,
+            errorMessage: 'SavingTargetRecord id=$id did not update');
+      }
+      return id;
+    } catch (e) {
+      saveResult = BoolResult(
+          success: false,
+          errorMessage:
+              'SavingTargetRecord Save failed. Error: ${e.toString()}');
+      return null;
+    }
+  }
+
+  /// inserts or replaces the sent List<<SavingTargetRecord>> as a bulk in one transaction.
+  /// upsertAll() method is faster then saveAll() method. upsertAll() should be used when you are sure that the primary key is greater than zero
+  /// Returns a BoolCommitResult
+  @override
+  Future<BoolCommitResult> upsertAll(
+      List<SavingTargetRecord> savingtargetrecords,
+      {bool? exclusive,
+      bool? noResult,
+      bool? continueOnError}) async {
+    final results = await _mnSavingTargetRecord.rawInsertAll(
+        'INSERT OR REPLACE INTO savingTargetRecords (id, amount, date, savingTargetsId)  VALUES (?,?,?,?)',
+        savingtargetrecords,
+        exclusive: exclusive,
+        noResult: noResult,
+        continueOnError: continueOnError);
+    return results;
+  }
+
+  /// Deletes SavingTargetRecord
+
+  /// <returns>BoolResult res.success= true (Deleted), false (Could not be deleted)
+  @override
+  Future<BoolResult> delete([bool hardDelete = false]) async {
+    debugPrint('SQFENTITIY: delete SavingTargetRecord invoked (id=$id)');
+    if (!_softDeleteActivated || hardDelete) {
+      return _mnSavingTargetRecord
+          .delete(QueryParams(whereString: 'id=?', whereArguments: [id]));
+    } else {
+      return _mnSavingTargetRecord.updateBatch(
+          QueryParams(whereString: 'id=?', whereArguments: [id]),
+          {'isDeleted': 1});
+    }
+  }
+
+  @override
+  Future<BoolResult> recover([bool recoverChilds = true]) {
+    // not implemented because:
+    final msg =
+        'set useSoftDeleting:true in the table definition of [SavingTargetRecord] to use this feature';
+    throw UnimplementedError(msg);
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder select(
+      {List<String>? columnsToSelect, bool? getIsDeleted}) {
+    return SavingTargetRecordFilterBuilder(this, getIsDeleted)
+      ..qparams.selectColumns = columnsToSelect;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder distinct(
+      {List<String>? columnsToSelect, bool? getIsDeleted}) {
+    return SavingTargetRecordFilterBuilder(this, getIsDeleted)
+      ..qparams.selectColumns = columnsToSelect
+      ..qparams.distinct = true;
+  }
+
+  void _setDefaultValues() {
+    savingTargetsId = savingTargetsId ?? 0;
+  }
+
+  @override
+  void rollbackPk() {
+    if (isInsert == true) {
+      id = null;
+    }
+  }
+
+  // END METHODS
+  // BEGIN CUSTOM CODE
+  /*
+      you can define customCode property of your SqfEntityTable constant. For example:
+      const tablePerson = SqfEntityTable(
+      tableName: 'person',
+      primaryKeyName: 'id',
+      primaryKeyType: PrimaryKeyType.integer_auto_incremental,
+      fields: [
+        SqfEntityField('firstName', DbType.text),
+        SqfEntityField('lastName', DbType.text),
+      ],
+      customCode: '''
+       String fullName()
+       { 
+         return '$firstName $lastName';
+       }
+      ''');
+     */
+  // END CUSTOM CODE
+}
+// endregion savingtargetrecord
+
+// region SavingTargetRecordField
+class SavingTargetRecordField extends FilterBase {
+  SavingTargetRecordField(SavingTargetRecordFilterBuilder savingtargetrecordFB)
+      : super(savingtargetrecordFB);
+
+  @override
+  SavingTargetRecordFilterBuilder equals(dynamic pValue) {
+    return super.equals(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder equalsOrNull(dynamic pValue) {
+    return super.equalsOrNull(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder isNull() {
+    return super.isNull() as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder contains(dynamic pValue) {
+    return super.contains(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder startsWith(dynamic pValue) {
+    return super.startsWith(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder endsWith(dynamic pValue) {
+    return super.endsWith(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder between(dynamic pFirst, dynamic pLast) {
+    return super.between(pFirst, pLast) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder greaterThan(dynamic pValue) {
+    return super.greaterThan(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder lessThan(dynamic pValue) {
+    return super.lessThan(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder greaterThanOrEquals(dynamic pValue) {
+    return super.greaterThanOrEquals(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder lessThanOrEquals(dynamic pValue) {
+    return super.lessThanOrEquals(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordFilterBuilder inValues(dynamic pValue) {
+    return super.inValues(pValue) as SavingTargetRecordFilterBuilder;
+  }
+
+  @override
+  SavingTargetRecordField get not {
+    return super.not as SavingTargetRecordField;
+  }
+}
+// endregion SavingTargetRecordField
+
+// region SavingTargetRecordFilterBuilder
+class SavingTargetRecordFilterBuilder extends ConjunctionBase {
+  SavingTargetRecordFilterBuilder(SavingTargetRecord obj, bool? getIsDeleted)
+      : super(obj, getIsDeleted) {
+    _mnSavingTargetRecord = obj._mnSavingTargetRecord;
+    _softDeleteActivated = obj.softDeleteActivated;
+  }
+
+  bool _softDeleteActivated = false;
+  SavingTargetRecordManager? _mnSavingTargetRecord;
+
+  /// put the sql keyword 'AND'
+  @override
+  SavingTargetRecordFilterBuilder get and {
+    super.and;
+    return this;
+  }
+
+  /// put the sql keyword 'OR'
+  @override
+  SavingTargetRecordFilterBuilder get or {
+    super.or;
+    return this;
+  }
+
+  /// open parentheses
+  @override
+  SavingTargetRecordFilterBuilder get startBlock {
+    super.startBlock;
+    return this;
+  }
+
+  /// String whereCriteria, write raw query without 'where' keyword. Like this: 'field1 like 'test%' and field2 = 3'
+  @override
+  SavingTargetRecordFilterBuilder where(String? whereCriteria,
+      {dynamic parameterValue}) {
+    super.where(whereCriteria, parameterValue: parameterValue);
+    return this;
+  }
+
+  /// page = page number,
+  /// pagesize = row(s) per page
+  @override
+  SavingTargetRecordFilterBuilder page(int page, int pagesize) {
+    super.page(page, pagesize);
+    return this;
+  }
+
+  /// int count = LIMIT
+  @override
+  SavingTargetRecordFilterBuilder top(int count) {
+    super.top(count);
+    return this;
+  }
+
+  /// close parentheses
+  @override
+  SavingTargetRecordFilterBuilder get endBlock {
+    super.endBlock;
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='name, date'
+  /// Example 2: argFields = ['name', 'date']
+  @override
+  SavingTargetRecordFilterBuilder orderBy(dynamic argFields) {
+    super.orderBy(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='field1, field2'
+  /// Example 2: argFields = ['field1', 'field2']
+  @override
+  SavingTargetRecordFilterBuilder orderByDesc(dynamic argFields) {
+    super.orderByDesc(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='field1, field2'
+  /// Example 2: argFields = ['field1', 'field2']
+  @override
+  SavingTargetRecordFilterBuilder groupBy(dynamic argFields) {
+    super.groupBy(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='name, date'
+  /// Example 2: argFields = ['name', 'date']
+  @override
+  SavingTargetRecordFilterBuilder having(dynamic argFields) {
+    super.having(argFields);
+    return this;
+  }
+
+  SavingTargetRecordField _setField(
+      SavingTargetRecordField? field, String colName, DbType dbtype) {
+    return SavingTargetRecordField(this)
+      ..param = DbParameter(
+          dbType: dbtype, columnName: colName, wStartBlock: openedBlock);
+  }
+
+  SavingTargetRecordField? _id;
+  SavingTargetRecordField get id {
+    return _id = _setField(_id, 'id', DbType.integer);
+  }
+
+  SavingTargetRecordField? _amount;
+  SavingTargetRecordField get amount {
+    return _amount = _setField(_amount, 'amount', DbType.real);
+  }
+
+  SavingTargetRecordField? _date;
+  SavingTargetRecordField get date {
+    return _date = _setField(_date, 'date', DbType.date);
+  }
+
+  SavingTargetRecordField? _savingTargetsId;
+  SavingTargetRecordField get savingTargetsId {
+    return _savingTargetsId =
+        _setField(_savingTargetsId, 'savingTargetsId', DbType.integer);
+  }
+
+  /// Deletes List<SavingTargetRecord> bulk by query
+  ///
+  /// <returns>BoolResult res.success= true (Deleted), false (Could not be deleted)
+  @override
+  Future<BoolResult> delete([bool hardDelete = false]) async {
+    buildParameters();
+    var r = BoolResult(success: false);
+
+    if (_softDeleteActivated && !hardDelete) {
+      r = await _mnSavingTargetRecord!.updateBatch(qparams, {'isDeleted': 1});
+    } else {
+      r = await _mnSavingTargetRecord!.delete(qparams);
+    }
+    return r;
+  }
+
+  /// using:
+  /// update({'fieldName': Value})
+  /// fieldName must be String. Value is dynamic, it can be any of the (int, bool, String.. )
+  @override
+  Future<BoolResult> update(Map<String, dynamic> values) {
+    buildParameters();
+    if (qparams.limit! > 0 || qparams.offset! > 0) {
+      qparams.whereString =
+          'id IN (SELECT id from savingTargetRecords ${qparams.whereString!.isNotEmpty ? 'WHERE ${qparams.whereString}' : ''}${qparams.limit! > 0 ? ' LIMIT ${qparams.limit}' : ''}${qparams.offset! > 0 ? ' OFFSET ${qparams.offset}' : ''})';
+    }
+    return _mnSavingTargetRecord!.updateBatch(qparams, values);
+  }
+
+  /// This method always returns [SavingTargetRecord] Obj if exist, otherwise returns null
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toSingle(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toSingle(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns> SavingTargetRecord?
+  @override
+  Future<SavingTargetRecord?> toSingle(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    buildParameters(pSize: 1);
+    final objFuture = _mnSavingTargetRecord!.toList(qparams);
+    final data = await objFuture;
+    SavingTargetRecord? obj;
+    if (data.isNotEmpty) {
+      obj = SavingTargetRecord.fromMap(data[0] as Map<String, dynamic>);
+
+      // RELATIONSHIPS PRELOAD
+      if (preload || loadParents) {
+        loadedFields = loadedFields ?? [];
+        if ((preloadFields == null ||
+            loadParents ||
+            preloadFields.contains('plSavingTarget'))) {
+          obj.plSavingTarget = obj.plSavingTarget ??
+              await obj.getSavingTarget(loadParents: loadParents);
+        }
+      } // END RELATIONSHIPS PRELOAD
+    } else {
+      obj = null;
+    }
+    return obj;
+  }
+
+  /// This method always returns [SavingTargetRecord]
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toSingle(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toSingle(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns> SavingTargetRecord?
+  @override
+  Future<SavingTargetRecord> toSingleOrDefault(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    return await toSingle(
+            preload: preload,
+            preloadFields: preloadFields,
+            loadParents: loadParents,
+            loadedFields: loadedFields) ??
+        SavingTargetRecord();
+  }
+
+  /// This method returns int. [SavingTargetRecord]
+  /// <returns>int
+  @override
+  Future<int> toCount(
+      [VoidCallback Function(int c)? savingtargetrecordCount]) async {
+    buildParameters();
+    qparams.selectColumns = ['COUNT(1) AS CNT'];
+    final savingtargetrecordsFuture =
+        await _mnSavingTargetRecord!.toList(qparams);
+    final int count = savingtargetrecordsFuture[0]['CNT'] as int;
+    if (savingtargetrecordCount != null) {
+      savingtargetrecordCount(count);
+    }
+    return count;
+  }
+
+  /// This method returns List<SavingTargetRecord> [SavingTargetRecord]
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toList(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toList(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns>List<SavingTargetRecord>
+  @override
+  Future<List<SavingTargetRecord>> toList(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    final data = await toMapList();
+    final List<SavingTargetRecord> savingtargetrecordsData =
+        await SavingTargetRecord.fromMapList(data,
+            preload: preload,
+            preloadFields: preloadFields,
+            loadParents: loadParents,
+            loadedFields: loadedFields,
+            setDefaultValues: qparams.selectColumns == null);
+    return savingtargetrecordsData;
+  }
+
+  /// This method returns Json String [SavingTargetRecord]
+  @override
+  Future<String> toJson() async {
+    final list = <dynamic>[];
+    final data = await toList();
+    for (var o in data) {
+      list.add(o.toMap(forJson: true));
+    }
+    return json.encode(list);
+  }
+
+  /// This method returns Json String. [SavingTargetRecord]
+  @override
+  Future<String> toJsonWithChilds() async {
+    final list = <dynamic>[];
+    final data = await toList();
+    for (var o in data) {
+      list.add(await o.toMapWithChildren(false, true));
+    }
+    return json.encode(list);
+  }
+
+  /// This method returns List<dynamic>. [SavingTargetRecord]
+  /// <returns>List<dynamic>
+  @override
+  Future<List<dynamic>> toMapList() async {
+    buildParameters();
+    return await _mnSavingTargetRecord!.toList(qparams);
+  }
+
+  /// This method returns Primary Key List SQL and Parameters retVal = Map<String,dynamic>. [SavingTargetRecord]
+  /// retVal['sql'] = SQL statement string, retVal['args'] = whereArguments List<dynamic>;
+  /// <returns>List<String>
+  @override
+  Map<String, dynamic> toListPrimaryKeySQL([bool buildParams = true]) {
+    final Map<String, dynamic> _retVal = <String, dynamic>{};
+    if (buildParams) {
+      buildParameters();
+    }
+    _retVal['sql'] =
+        'SELECT `id` FROM savingTargetRecords WHERE ${qparams.whereString}';
+    _retVal['args'] = qparams.whereArguments;
+    return _retVal;
+  }
+
+  /// This method returns Primary Key List<int>.
+  /// <returns>List<int>
+  @override
+  Future<List<int>> toListPrimaryKey([bool buildParams = true]) async {
+    if (buildParams) {
+      buildParameters();
+    }
+    final List<int> idData = <int>[];
+    qparams.selectColumns = ['id'];
+    final idFuture = await _mnSavingTargetRecord!.toList(qparams);
+
+    final int count = idFuture.length;
+    for (int i = 0; i < count; i++) {
+      idData.add(idFuture[i]['id'] as int);
+    }
+    return idData;
+  }
+
+  /// Returns List<dynamic> for selected columns. Use this method for 'groupBy' with min,max,avg..  [SavingTargetRecord]
+  /// Sample usage: (see EXAMPLE 4.2 at https://github.com/hhtokpinar/sqfEntity#group-by)
+  @override
+  Future<List<dynamic>> toListObject() async {
+    buildParameters();
+
+    final objectFuture = _mnSavingTargetRecord!.toList(qparams);
+
+    final List<dynamic> objectsData = <dynamic>[];
+    final data = await objectFuture;
+    final int count = data.length;
+    for (int i = 0; i < count; i++) {
+      objectsData.add(data[i]);
+    }
+    return objectsData;
+  }
+
+  /// Returns List<String> for selected first column
+  /// Sample usage: await SavingTargetRecord.select(columnsToSelect: ['columnName']).toListString()
+  @override
+  Future<List<String>> toListString(
+      [VoidCallback Function(List<String> o)? listString]) async {
+    buildParameters();
+
+    final objectFuture = _mnSavingTargetRecord!.toList(qparams);
+
+    final List<String> objectsData = <String>[];
+    final data = await objectFuture;
+    final int count = data.length;
+    for (int i = 0; i < count; i++) {
+      objectsData.add(data[i][qparams.selectColumns![0]].toString());
+    }
+    if (listString != null) {
+      listString(objectsData);
+    }
+    return objectsData;
+  }
+}
+// endregion SavingTargetRecordFilterBuilder
+
+// region SavingTargetRecordFields
+class SavingTargetRecordFields {
+  static TableField? _fId;
+  static TableField get id {
+    return _fId = _fId ?? SqlSyntax.setField(_fId, 'id', DbType.integer);
+  }
+
+  static TableField? _fAmount;
+  static TableField get amount {
+    return _fAmount =
+        _fAmount ?? SqlSyntax.setField(_fAmount, 'amount', DbType.real);
+  }
+
+  static TableField? _fDate;
+  static TableField get date {
+    return _fDate = _fDate ?? SqlSyntax.setField(_fDate, 'date', DbType.date);
+  }
+
+  static TableField? _fSavingTargetsId;
+  static TableField get savingTargetsId {
+    return _fSavingTargetsId = _fSavingTargetsId ??
+        SqlSyntax.setField(
+            _fSavingTargetsId, 'savingTargetsId', DbType.integer);
+  }
+}
+// endregion SavingTargetRecordFields
+
+//region SavingTargetRecordManager
+class SavingTargetRecordManager extends SqfEntityProvider {
+  SavingTargetRecordManager()
+      : super(DBModel(),
+            tableName: _tableName,
+            primaryKeyList: _primaryKeyList,
+            whereStr: _whereStr);
+  static const String _tableName = 'savingTargetRecords';
+  static const List<String> _primaryKeyList = ['id'];
+  static const String _whereStr = 'id=?';
+}
+
+//endregion SavingTargetRecordManager
+// region Preference
+class Preference extends TableBase {
+  Preference({this.id, this.name, this.value}) {
+    _setDefaultValues();
+    softDeleteActivated = false;
+  }
+  Preference.withFields(this.name, this.value) {
+    _setDefaultValues();
+  }
+  Preference.withId(this.id, this.name, this.value) {
+    _setDefaultValues();
+  }
+  // fromMap v2.0
+  Preference.fromMap(Map<String, dynamic> o, {bool setDefaultValues = true}) {
+    if (setDefaultValues) {
+      _setDefaultValues();
+    }
+    id = int.tryParse(o['id'].toString());
+    if (o['name'] != null) {
+      name = o['name'].toString();
+    }
+    if (o['value'] != null) {
+      value = o['value'].toString();
+    }
+  }
+  // FIELDS (Preference)
+  int? id;
+  String? name;
+  String? value;
+
+  // end FIELDS (Preference)
+
+  static const bool _softDeleteActivated = false;
+  PreferenceManager? __mnPreference;
+
+  PreferenceManager get _mnPreference {
+    return __mnPreference = __mnPreference ?? PreferenceManager();
+  }
+
+  // METHODS
+  @override
+  Map<String, dynamic> toMap(
+      {bool forQuery = false, bool forJson = false, bool forView = false}) {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    if (name != null || !forView) {
+      map['name'] = name;
+    }
+    if (value != null || !forView) {
+      map['value'] = value;
+    }
+
+    return map;
+  }
+
+  @override
+  Future<Map<String, dynamic>> toMapWithChildren(
+      [bool forQuery = false,
+      bool forJson = false,
+      bool forView = false]) async {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    if (name != null || !forView) {
+      map['name'] = name;
+    }
+    if (value != null || !forView) {
+      map['value'] = value;
+    }
+
+    return map;
+  }
+
+  /// This method returns Json String [Preference]
+  @override
+  String toJson() {
+    return json.encode(toMap(forJson: true));
+  }
+
+  /// This method returns Json String [Preference]
+  @override
+  Future<String> toJsonWithChilds() async {
+    return json.encode(await toMapWithChildren(false, true));
+  }
+
+  @override
+  List<dynamic> toArgs() {
+    return [name, value];
+  }
+
+  @override
+  List<dynamic> toArgsWithIds() {
+    return [id, name, value];
+  }
+
+  static Future<List<Preference>?> fromWebUrl(Uri uri,
+      {Map<String, String>? headers}) async {
+    try {
+      final response = await http.get(uri, headers: headers);
+      return await fromJson(response.body);
+    } catch (e) {
+      debugPrint(
+          'SQFENTITY ERROR Preference.fromWebUrl: ErrorMessage: ${e.toString()}');
+      return null;
+    }
+  }
+
+  Future<http.Response> postUrl(Uri uri, {Map<String, String>? headers}) {
+    return http.post(uri, headers: headers, body: toJson());
+  }
+
+  static Future<List<Preference>> fromJson(String jsonBody) async {
+    final Iterable list = await json.decode(jsonBody) as Iterable;
+    var objList = <Preference>[];
+    try {
+      objList = list
+          .map((preference) =>
+              Preference.fromMap(preference as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint(
+          'SQFENTITY ERROR Preference.fromJson: ErrorMessage: ${e.toString()}');
+    }
+    return objList;
+  }
+
+  static Future<List<Preference>> fromMapList(List<dynamic> data,
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields,
+      bool setDefaultValues = true}) async {
+    final List<Preference> objList = <Preference>[];
+    loadedFields = loadedFields ?? [];
+    for (final map in data) {
+      final obj = Preference.fromMap(map as Map<String, dynamic>,
+          setDefaultValues: setDefaultValues);
+
+      objList.add(obj);
+    }
+    return objList;
+  }
+
+  /// returns Preference by ID if exist, otherwise returns null
+  /// Primary Keys: int? id
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: getById(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: getById(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns>returns [Preference] if exist, otherwise returns null
+  Future<Preference?> getById(int? id,
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    if (id == null) {
+      return null;
+    }
+    Preference? obj;
+    final data = await _mnPreference.getById([id]);
+    if (data.length != 0) {
+      obj = Preference.fromMap(data[0] as Map<String, dynamic>);
+    } else {
+      obj = null;
+    }
+    return obj;
+  }
+
+  /// Saves the (Preference) object. If the id field is null, saves as a new record and returns new id, if id is not null then updates record
+  /// ignoreBatch = true as a default. Set ignoreBatch to false if you run more than one save() operation those are between batchStart and batchCommit
+  /// <returns>Returns id
+  @override
+  Future<int?> save({bool ignoreBatch = true}) async {
+    if (id == null || id == 0) {
+      id = await _mnPreference.insert(this, ignoreBatch);
+    } else {
+      await _mnPreference.update(this);
+    }
+
+    return id;
+  }
+
+  /// Saves the (Preference) object. If the id field is null, saves as a new record and returns new id, if id is not null then updates record
+  /// ignoreBatch = true as a default. Set ignoreBatch to false if you run more than one save() operation those are between batchStart and batchCommit
+  /// <returns>Returns id
+  @override
+  Future<int?> saveOrThrow({bool ignoreBatch = true}) async {
+    if (id == null || id == 0) {
+      id = await _mnPreference.insertOrThrow(this, ignoreBatch);
+
+      isInsert = true;
+    } else {
+      // id= await _upsert(); // removed in sqfentity_gen 1.3.0+6
+      await _mnPreference.updateOrThrow(this);
+    }
+
+    return id;
+  }
+
+  /// saveAs Preference. Returns a new Primary Key value of Preference
+
+  /// <returns>Returns a new Primary Key value of Preference
+  @override
+  Future<int?> saveAs({bool ignoreBatch = true}) async {
+    id = null;
+
+    return save(ignoreBatch: ignoreBatch);
+  }
+
+  /// saveAll method saves the sent List<Preference> as a bulk in one transaction
+  /// Returns a <List<BoolResult>>
+  static Future<List<dynamic>> saveAll(List<Preference> preferences,
+      {bool? exclusive, bool? noResult, bool? continueOnError}) async {
+    List<dynamic>? result = [];
+    // If there is no open transaction, start one
+    final isStartedBatch = await DBModel().batchStart();
+    for (final obj in preferences) {
+      await obj.save(ignoreBatch: false);
+    }
+    if (!isStartedBatch) {
+      result = await DBModel().batchCommit(
+          exclusive: exclusive,
+          noResult: noResult,
+          continueOnError: continueOnError);
+      for (int i = 0; i < preferences.length; i++) {
+        if (preferences[i].id == null) {
+          preferences[i].id = result![i] as int;
+        }
+      }
+    }
+    return result!;
+  }
+
+  /// Updates if the record exists, otherwise adds a new row
+  /// <returns>Returns id
+  @override
+  Future<int?> upsert({bool ignoreBatch = true}) async {
+    try {
+      final result = await _mnPreference.rawInsert(
+          'INSERT OR REPLACE INTO preferences (id, name, value)  VALUES (?,?,?)',
+          [id, name, value],
+          ignoreBatch);
+      if (result! > 0) {
+        saveResult = BoolResult(
+            success: true,
+            successMessage: 'Preference id=$id updated successfully');
+      } else {
+        saveResult = BoolResult(
+            success: false, errorMessage: 'Preference id=$id did not update');
+      }
+      return id;
+    } catch (e) {
+      saveResult = BoolResult(
+          success: false,
+          errorMessage: 'Preference Save failed. Error: ${e.toString()}');
+      return null;
+    }
+  }
+
+  /// inserts or replaces the sent List<<Preference>> as a bulk in one transaction.
+  /// upsertAll() method is faster then saveAll() method. upsertAll() should be used when you are sure that the primary key is greater than zero
+  /// Returns a BoolCommitResult
+  @override
+  Future<BoolCommitResult> upsertAll(List<Preference> preferences,
+      {bool? exclusive, bool? noResult, bool? continueOnError}) async {
+    final results = await _mnPreference.rawInsertAll(
+        'INSERT OR REPLACE INTO preferences (id, name, value)  VALUES (?,?,?)',
+        preferences,
+        exclusive: exclusive,
+        noResult: noResult,
+        continueOnError: continueOnError);
+    return results;
+  }
+
+  /// Deletes Preference
+
+  /// <returns>BoolResult res.success= true (Deleted), false (Could not be deleted)
+  @override
+  Future<BoolResult> delete([bool hardDelete = false]) async {
+    debugPrint('SQFENTITIY: delete Preference invoked (id=$id)');
+    if (!_softDeleteActivated || hardDelete) {
+      return _mnPreference
+          .delete(QueryParams(whereString: 'id=?', whereArguments: [id]));
+    } else {
+      return _mnPreference.updateBatch(
+          QueryParams(whereString: 'id=?', whereArguments: [id]),
+          {'isDeleted': 1});
+    }
+  }
+
+  @override
+  Future<BoolResult> recover([bool recoverChilds = true]) {
+    // not implemented because:
+    final msg =
+        'set useSoftDeleting:true in the table definition of [Preference] to use this feature';
+    throw UnimplementedError(msg);
+  }
+
+  @override
+  PreferenceFilterBuilder select(
+      {List<String>? columnsToSelect, bool? getIsDeleted}) {
+    return PreferenceFilterBuilder(this, getIsDeleted)
+      ..qparams.selectColumns = columnsToSelect;
+  }
+
+  @override
+  PreferenceFilterBuilder distinct(
+      {List<String>? columnsToSelect, bool? getIsDeleted}) {
+    return PreferenceFilterBuilder(this, getIsDeleted)
+      ..qparams.selectColumns = columnsToSelect
+      ..qparams.distinct = true;
+  }
+
+  void _setDefaultValues() {}
+
+  @override
+  void rollbackPk() {
+    if (isInsert == true) {
+      id = null;
+    }
+  }
+
+  // END METHODS
+  // BEGIN CUSTOM CODE
+  /*
+      you can define customCode property of your SqfEntityTable constant. For example:
+      const tablePerson = SqfEntityTable(
+      tableName: 'person',
+      primaryKeyName: 'id',
+      primaryKeyType: PrimaryKeyType.integer_auto_incremental,
+      fields: [
+        SqfEntityField('firstName', DbType.text),
+        SqfEntityField('lastName', DbType.text),
+      ],
+      customCode: '''
+       String fullName()
+       { 
+         return '$firstName $lastName';
+       }
+      ''');
+     */
+  // END CUSTOM CODE
+}
+// endregion preference
+
+// region PreferenceField
+class PreferenceField extends FilterBase {
+  PreferenceField(PreferenceFilterBuilder preferenceFB) : super(preferenceFB);
+
+  @override
+  PreferenceFilterBuilder equals(dynamic pValue) {
+    return super.equals(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder equalsOrNull(dynamic pValue) {
+    return super.equalsOrNull(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder isNull() {
+    return super.isNull() as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder contains(dynamic pValue) {
+    return super.contains(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder startsWith(dynamic pValue) {
+    return super.startsWith(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder endsWith(dynamic pValue) {
+    return super.endsWith(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder between(dynamic pFirst, dynamic pLast) {
+    return super.between(pFirst, pLast) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder greaterThan(dynamic pValue) {
+    return super.greaterThan(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder lessThan(dynamic pValue) {
+    return super.lessThan(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder greaterThanOrEquals(dynamic pValue) {
+    return super.greaterThanOrEquals(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder lessThanOrEquals(dynamic pValue) {
+    return super.lessThanOrEquals(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceFilterBuilder inValues(dynamic pValue) {
+    return super.inValues(pValue) as PreferenceFilterBuilder;
+  }
+
+  @override
+  PreferenceField get not {
+    return super.not as PreferenceField;
+  }
+}
+// endregion PreferenceField
+
+// region PreferenceFilterBuilder
+class PreferenceFilterBuilder extends ConjunctionBase {
+  PreferenceFilterBuilder(Preference obj, bool? getIsDeleted)
+      : super(obj, getIsDeleted) {
+    _mnPreference = obj._mnPreference;
+    _softDeleteActivated = obj.softDeleteActivated;
+  }
+
+  bool _softDeleteActivated = false;
+  PreferenceManager? _mnPreference;
+
+  /// put the sql keyword 'AND'
+  @override
+  PreferenceFilterBuilder get and {
+    super.and;
+    return this;
+  }
+
+  /// put the sql keyword 'OR'
+  @override
+  PreferenceFilterBuilder get or {
+    super.or;
+    return this;
+  }
+
+  /// open parentheses
+  @override
+  PreferenceFilterBuilder get startBlock {
+    super.startBlock;
+    return this;
+  }
+
+  /// String whereCriteria, write raw query without 'where' keyword. Like this: 'field1 like 'test%' and field2 = 3'
+  @override
+  PreferenceFilterBuilder where(String? whereCriteria,
+      {dynamic parameterValue}) {
+    super.where(whereCriteria, parameterValue: parameterValue);
+    return this;
+  }
+
+  /// page = page number,
+  /// pagesize = row(s) per page
+  @override
+  PreferenceFilterBuilder page(int page, int pagesize) {
+    super.page(page, pagesize);
+    return this;
+  }
+
+  /// int count = LIMIT
+  @override
+  PreferenceFilterBuilder top(int count) {
+    super.top(count);
+    return this;
+  }
+
+  /// close parentheses
+  @override
+  PreferenceFilterBuilder get endBlock {
+    super.endBlock;
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='name, date'
+  /// Example 2: argFields = ['name', 'date']
+  @override
+  PreferenceFilterBuilder orderBy(dynamic argFields) {
+    super.orderBy(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='field1, field2'
+  /// Example 2: argFields = ['field1', 'field2']
+  @override
+  PreferenceFilterBuilder orderByDesc(dynamic argFields) {
+    super.orderByDesc(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='field1, field2'
+  /// Example 2: argFields = ['field1', 'field2']
+  @override
+  PreferenceFilterBuilder groupBy(dynamic argFields) {
+    super.groupBy(argFields);
+    return this;
+  }
+
+  /// argFields might be String or List<String>.
+  /// Example 1: argFields='name, date'
+  /// Example 2: argFields = ['name', 'date']
+  @override
+  PreferenceFilterBuilder having(dynamic argFields) {
+    super.having(argFields);
+    return this;
+  }
+
+  PreferenceField _setField(
+      PreferenceField? field, String colName, DbType dbtype) {
+    return PreferenceField(this)
+      ..param = DbParameter(
+          dbType: dbtype, columnName: colName, wStartBlock: openedBlock);
+  }
+
+  PreferenceField? _id;
+  PreferenceField get id {
+    return _id = _setField(_id, 'id', DbType.integer);
+  }
+
+  PreferenceField? _name;
+  PreferenceField get name {
+    return _name = _setField(_name, 'name', DbType.text);
+  }
+
+  PreferenceField? _value;
+  PreferenceField get value {
+    return _value = _setField(_value, 'value', DbType.text);
+  }
+
+  /// Deletes List<Preference> bulk by query
+  ///
+  /// <returns>BoolResult res.success= true (Deleted), false (Could not be deleted)
+  @override
+  Future<BoolResult> delete([bool hardDelete = false]) async {
+    buildParameters();
+    var r = BoolResult(success: false);
+
+    if (_softDeleteActivated && !hardDelete) {
+      r = await _mnPreference!.updateBatch(qparams, {'isDeleted': 1});
+    } else {
+      r = await _mnPreference!.delete(qparams);
+    }
+    return r;
+  }
+
+  /// using:
+  /// update({'fieldName': Value})
+  /// fieldName must be String. Value is dynamic, it can be any of the (int, bool, String.. )
+  @override
+  Future<BoolResult> update(Map<String, dynamic> values) {
+    buildParameters();
+    if (qparams.limit! > 0 || qparams.offset! > 0) {
+      qparams.whereString =
+          'id IN (SELECT id from preferences ${qparams.whereString!.isNotEmpty ? 'WHERE ${qparams.whereString}' : ''}${qparams.limit! > 0 ? ' LIMIT ${qparams.limit}' : ''}${qparams.offset! > 0 ? ' OFFSET ${qparams.offset}' : ''})';
+    }
+    return _mnPreference!.updateBatch(qparams, values);
+  }
+
+  /// This method always returns [Preference] Obj if exist, otherwise returns null
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toSingle(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toSingle(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns> Preference?
+  @override
+  Future<Preference?> toSingle(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    buildParameters(pSize: 1);
+    final objFuture = _mnPreference!.toList(qparams);
+    final data = await objFuture;
+    Preference? obj;
+    if (data.isNotEmpty) {
+      obj = Preference.fromMap(data[0] as Map<String, dynamic>);
+    } else {
+      obj = null;
+    }
+    return obj;
+  }
+
+  /// This method always returns [Preference]
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toSingle(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toSingle(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns> Preference?
+  @override
+  Future<Preference> toSingleOrDefault(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    return await toSingle(
+            preload: preload,
+            preloadFields: preloadFields,
+            loadParents: loadParents,
+            loadedFields: loadedFields) ??
+        Preference();
+  }
+
+  /// This method returns int. [Preference]
+  /// <returns>int
+  @override
+  Future<int> toCount([VoidCallback Function(int c)? preferenceCount]) async {
+    buildParameters();
+    qparams.selectColumns = ['COUNT(1) AS CNT'];
+    final preferencesFuture = await _mnPreference!.toList(qparams);
+    final int count = preferencesFuture[0]['CNT'] as int;
+    if (preferenceCount != null) {
+      preferenceCount(count);
+    }
+    return count;
+  }
+
+  /// This method returns List<Preference> [Preference]
+  /// bool preload: if true, loads all related child objects (Set preload to true if you want to load all fields related to child or parent)
+  /// ex: toList(preload:true) -> Loads all related objects
+  /// List<String> preloadFields: specify the fields you want to preload (preload parameter's value should also be "true")
+  /// ex: toList(preload:true, preloadFields:['plField1','plField2'... etc])  -> Loads only certain fields what you specified
+  /// bool loadParents: if true, loads all parent objects until the object has no parent
+
+  /// <returns>List<Preference>
+  @override
+  Future<List<Preference>> toList(
+      {bool preload = false,
+      List<String>? preloadFields,
+      bool loadParents = false,
+      List<String>? loadedFields}) async {
+    final data = await toMapList();
+    final List<Preference> preferencesData = await Preference.fromMapList(data,
+        preload: preload,
+        preloadFields: preloadFields,
+        loadParents: loadParents,
+        loadedFields: loadedFields,
+        setDefaultValues: qparams.selectColumns == null);
+    return preferencesData;
+  }
+
+  /// This method returns Json String [Preference]
+  @override
+  Future<String> toJson() async {
+    final list = <dynamic>[];
+    final data = await toList();
+    for (var o in data) {
+      list.add(o.toMap(forJson: true));
+    }
+    return json.encode(list);
+  }
+
+  /// This method returns Json String. [Preference]
+  @override
+  Future<String> toJsonWithChilds() async {
+    final list = <dynamic>[];
+    final data = await toList();
+    for (var o in data) {
+      list.add(await o.toMapWithChildren(false, true));
+    }
+    return json.encode(list);
+  }
+
+  /// This method returns List<dynamic>. [Preference]
+  /// <returns>List<dynamic>
+  @override
+  Future<List<dynamic>> toMapList() async {
+    buildParameters();
+    return await _mnPreference!.toList(qparams);
+  }
+
+  /// This method returns Primary Key List SQL and Parameters retVal = Map<String,dynamic>. [Preference]
+  /// retVal['sql'] = SQL statement string, retVal['args'] = whereArguments List<dynamic>;
+  /// <returns>List<String>
+  @override
+  Map<String, dynamic> toListPrimaryKeySQL([bool buildParams = true]) {
+    final Map<String, dynamic> _retVal = <String, dynamic>{};
+    if (buildParams) {
+      buildParameters();
+    }
+    _retVal['sql'] =
+        'SELECT `id` FROM preferences WHERE ${qparams.whereString}';
+    _retVal['args'] = qparams.whereArguments;
+    return _retVal;
+  }
+
+  /// This method returns Primary Key List<int>.
+  /// <returns>List<int>
+  @override
+  Future<List<int>> toListPrimaryKey([bool buildParams = true]) async {
+    if (buildParams) {
+      buildParameters();
+    }
+    final List<int> idData = <int>[];
+    qparams.selectColumns = ['id'];
+    final idFuture = await _mnPreference!.toList(qparams);
+
+    final int count = idFuture.length;
+    for (int i = 0; i < count; i++) {
+      idData.add(idFuture[i]['id'] as int);
+    }
+    return idData;
+  }
+
+  /// Returns List<dynamic> for selected columns. Use this method for 'groupBy' with min,max,avg..  [Preference]
+  /// Sample usage: (see EXAMPLE 4.2 at https://github.com/hhtokpinar/sqfEntity#group-by)
+  @override
+  Future<List<dynamic>> toListObject() async {
+    buildParameters();
+
+    final objectFuture = _mnPreference!.toList(qparams);
+
+    final List<dynamic> objectsData = <dynamic>[];
+    final data = await objectFuture;
+    final int count = data.length;
+    for (int i = 0; i < count; i++) {
+      objectsData.add(data[i]);
+    }
+    return objectsData;
+  }
+
+  /// Returns List<String> for selected first column
+  /// Sample usage: await Preference.select(columnsToSelect: ['columnName']).toListString()
+  @override
+  Future<List<String>> toListString(
+      [VoidCallback Function(List<String> o)? listString]) async {
+    buildParameters();
+
+    final objectFuture = _mnPreference!.toList(qparams);
+
+    final List<String> objectsData = <String>[];
+    final data = await objectFuture;
+    final int count = data.length;
+    for (int i = 0; i < count; i++) {
+      objectsData.add(data[i][qparams.selectColumns![0]].toString());
+    }
+    if (listString != null) {
+      listString(objectsData);
+    }
+    return objectsData;
+  }
+}
+// endregion PreferenceFilterBuilder
+
+// region PreferenceFields
+class PreferenceFields {
+  static TableField? _fId;
+  static TableField get id {
+    return _fId = _fId ?? SqlSyntax.setField(_fId, 'id', DbType.integer);
+  }
+
+  static TableField? _fName;
+  static TableField get name {
+    return _fName = _fName ?? SqlSyntax.setField(_fName, 'name', DbType.text);
+  }
+
+  static TableField? _fValue;
+  static TableField get value {
+    return _fValue =
+        _fValue ?? SqlSyntax.setField(_fValue, 'value', DbType.text);
+  }
+}
+// endregion PreferenceFields
+
+//region PreferenceManager
+class PreferenceManager extends SqfEntityProvider {
+  PreferenceManager()
+      : super(DBModel(),
+            tableName: _tableName,
+            primaryKeyList: _primaryKeyList,
+            whereStr: _whereStr);
+  static const String _tableName = 'preferences';
+  static const List<String> _primaryKeyList = ['id'];
+  static const String _whereStr = 'id=?';
+}
+
+//endregion PreferenceManager
 /// Region SEQUENCE IdentitySequence
 class IdentitySequence {
   /// Assigns a new value when it is triggered and returns the new value

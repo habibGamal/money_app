@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:money_app/model_util/records_util.dart';
 import 'package:money_app/notifiers/app_state.dart';
+import 'package:money_app/tools/translate.dart';
+import 'package:money_app/widgets/LTR_only.dart';
 import 'package:money_app/widgets/normal_text.dart';
 import 'package:money_app/widgets/gray_text.dart';
 import 'package:provider/provider.dart';
@@ -13,22 +15,28 @@ class RecordTile extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final t = translate(context);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: record.category.color,
+          color: record.category.getColor(context),
           borderRadius: BorderRadius.circular(10000),
         ),
         child: Center(child: record.category.icon),
       ),
-      title: NormalText(record.category.title),
+      title: NormalText(t(record.category.title, record.category.titleAr)),
       subtitle: record.note != ''
           ? GrayText(record.note!)
-          : const GrayText('No notes'),
-      trailing: NormalText('\$ ${record.amount.toString()}'),
+          : GrayText(t('No notes', 'لا يوجد ملاحظات')),
+      trailing: LTROnly(
+        child: NormalText(
+          '\$ ${record.amount.toString()}',
+          canTranlate: false,
+        ),
+      ),
       onTap: () => {
         Navigator.pushNamed(
           context,
@@ -45,9 +53,9 @@ class RecordTile extends StatelessWidget {
                   child: ElevatedButton(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.delete),
-                        Text('Delete'),
+                      children: [
+                        const Icon(Icons.delete),
+                        NormalText(t('Delete', 'حذف')),
                       ],
                     ),
                     onPressed: () {

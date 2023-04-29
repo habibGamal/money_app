@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:money_app/app_colors.dart';
-import 'package:money_app/widgets/bold_text.dart';
+import 'package:money_app/widgets/LTR_only.dart';
 import 'package:money_app/widgets/gray_text.dart';
 
 class TopCard extends StatelessWidget {
@@ -55,13 +54,14 @@ class TopCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               GrayText(title),
-              // BoldText(value),
-              Text(value,
-                  style: GoogleFonts.manrope(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ))
+              LTROnly(
+                child: Text(value,
+                    style: GoogleFonts.manrope(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    )),
+              )
             ],
           ),
         ),

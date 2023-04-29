@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:money_app/styles/fontStyle.dart';
 
-class NormalText extends StatelessWidget {
-  const NormalText(
+class SmallText extends StatelessWidget {
+  const SmallText(
     this.value, {
     this.canTranlate = true,
     super.key,
@@ -17,7 +17,7 @@ class NormalText extends StatelessWidget {
         style: fontStyle(
           context,
           canTranslate: canTranlate,
-          fontSize: 16,
+          fontSize: 12,
           fontWeight: FontWeight.w400,
           color: Theme.of(context).colorScheme.onBackground,
         ));
