@@ -32,6 +32,13 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           DrawerItem(
+            name: t('Plan Your Expenses', 'تخطيط مصاريفك'),
+            icon: FontAwesomeIcons.clipboardList,
+            callback: () {
+              Navigator.of(context).pushReplacementNamed('/plan-expenses');
+            },
+          ),
+          DrawerItem(
             name: t('Money Management', 'ادارة نقودك'),
             icon: FontAwesomeIcons.moneyBillTransfer,
             callback: () {

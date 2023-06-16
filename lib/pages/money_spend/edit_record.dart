@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:money_app/model/model.dart';
 import 'package:money_app/notifiers/app_state.dart';
-import 'package:money_app/pages/money_spend/record_form.dart';
 import 'package:money_app/tools/translate.dart';
 import 'package:money_app/widgets/bold_text.dart';
 import 'package:money_app/widgets/keyboard_dismiss.dart';
+import 'package:money_app/widgets/record_form.dart';
 import 'package:provider/provider.dart';
 
 class EditRecordPage extends StatelessWidget {

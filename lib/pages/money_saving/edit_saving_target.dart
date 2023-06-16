@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_app/model_util/saving_targets_util.dart';
 import 'package:money_app/notifiers/money_saving_state.dart';
-import 'package:money_app/pages/money_saving/saving_target_form.dart';
+import 'package:money_app/widgets/saving_target_form.dart';
 import 'package:money_app/tools/translate.dart';
 import 'package:money_app/widgets/title_text.dart';
 import 'package:provider/provider.dart';

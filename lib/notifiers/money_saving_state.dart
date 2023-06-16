@@ -9,7 +9,6 @@ class MoneySavingState extends ChangeNotifier {
     final targetsDB = await SavingTarget().select().toList();
     _savingTargets =
         await SavingTargetsUtil(targetsDB).savingTargetsWithItsRecords;
-    print(_savingTargets);
     notifyListeners();
   }
 }
