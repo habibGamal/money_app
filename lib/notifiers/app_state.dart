@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:money_app/model_util/record_type.dart';
@@ -32,6 +34,11 @@ class AppState extends ChangeNotifier {
   bool get isAR => _language == 'ar';
 
   bool get isEN => _language == 'en';
+
+  // plan
+  String? _plan;
+
+  String? get plan => _plan;
 
   // mode
   Mode _currentMode = Mode.expense;
@@ -123,31 +130,42 @@ class AppState extends ChangeNotifier {
   }
 
   void toggleLanguage() {
-    print(_language);
     _language = _language == 'ar' ? 'en' : 'ar';
-    print('1');
     updateLangInDB();
-    print(_language);
     initializeDateFormatting('ar_SA');
     notifyListeners();
   }
 
   updateLangInDB() async {
     final lang = await Preference().select().name.equals('lang').toSingle();
-
-    print(_language);
     if (lang != null) {
       lang.value = _language;
       lang.save();
     }
   }
 
-  void initLangFromDB() async {
-    print('runned');
+  Future<void> initLangFromDB() async {
     final lang = await Preference().select().name.equals('lang').toSingle();
     if (lang != null) _language = lang.value!;
     if (lang == null) {
       await Preference.withFields('lang', 'en').save();
+    }
+    notifyListeners();
+  }
+
+  updatePlanInDB(Map<String, double> planMap) async {
+    final plan = await Preference().select().name.equals('plan').toSingle();
+    if (plan != null) {
+      plan.value = jsonEncode(planMap);
+      plan.save();
+    }
+  }
+
+  void initPlanFromDB() async {
+    final plan = await Preference().select().name.equals('plan').toSingle();
+    if (plan != null) _plan = plan.value;
+    if (plan == null) {
+      await Preference.withFields('plan', jsonEncode({})).save();
     }
     notifyListeners();
   }

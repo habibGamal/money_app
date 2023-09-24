@@ -17,9 +17,16 @@ class DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: FaIcon(
-        icon,
-        color: AppColors.primary,
+      leading: SizedBox(
+        width: 30,
+        height: 20,
+        child: Center(
+          child: FaIcon(
+            size: 20,
+            icon,
+            // color: Colors.grey[100],
+          ),
+        ),
       ),
       title: NormalText(name),
       onTap: () {

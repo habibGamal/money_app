@@ -84,8 +84,10 @@ class SavingTargetCard extends StatelessWidget {
                   child: ElevatedButton(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Icon(Icons.delete),
+                        SizedBox(width: 10),
                         NormalText(t('Delete', 'حذف')),
                       ],
                     ),

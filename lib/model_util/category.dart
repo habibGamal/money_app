@@ -41,15 +41,6 @@ const incomeCategories = [
       colorName: 'yellow'),
   Category(
       id: 2,
-      title: 'Bonus',
-      titleAr: 'البونص',
-      icon: FaIcon(
-        Iconsax.wallet_add,
-        color: Colors.black38,
-      ),
-      colorName: 'lightYellow'),
-  Category(
-      id: 3,
       title: 'Part time',
       titleAr: 'عمل جزئي',
       icon: FaIcon(
@@ -57,15 +48,24 @@ const incomeCategories = [
         color: Colors.black38,
       ),
       colorName: 'lightYellow_2'),
-  Category(
-      id: 4,
-      title: 'Freelance',
-      titleAr: 'عمل حر',
-      icon: FaIcon(
-        Iconsax.card,
-        color: Colors.black38,
-      ),
-      colorName: 'lightYellow_3'),
+  // Category(
+  //     id: 3,
+  //     title: 'Bonus',
+  //     titleAr: 'البونص',
+  //     icon: FaIcon(
+  //       Iconsax.wallet_add,
+  //       color: Colors.black38,
+  //     ),
+  //     colorName: 'lightYellow'),
+  // Category(
+  //     id: 4,
+  //     title: 'Freelance',
+  //     titleAr: 'عمل حر',
+  //     icon: FaIcon(
+  //       Iconsax.card,
+  //       color: Colors.black38,
+  //     ),
+  //     colorName: 'lightYellow_3'),
 ];
 
 const expenseCategories = [

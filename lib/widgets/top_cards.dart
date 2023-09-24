@@ -52,7 +52,7 @@ class _TopCardsState extends State<TopCards> {
             callback: () => modeToExpence(),
           ),
           TopCard(
-            title: t('Balance', 'الرصيد'),
+            title: t('Balance', 'الرصيد المتبقي'),
             value: appState.balance >= 0
                 ? '\$ ${appState.balance}'
                 : '-\$ ${appState.balance.abs()}',

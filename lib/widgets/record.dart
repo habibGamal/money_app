@@ -28,9 +28,9 @@ class RecordTile extends StatelessWidget {
         child: Center(child: record.category.icon),
       ),
       title: NormalText(t(record.category.title, record.category.titleAr)),
-      subtitle: record.note != ''
-          ? GrayText(record.note!)
-          : GrayText(t('No notes', 'لا يوجد ملاحظات')),
+      // subtitle: record.note != ''
+      //     ? GrayText(record.note!)
+      //     : GrayText(t('No notes', 'لا يوجد ملاحظات')),
       trailing: LTROnly(
         child: NormalText(
           '\$ ${record.amount.toString()}',
@@ -53,8 +53,10 @@ class RecordTile extends StatelessWidget {
                   child: ElevatedButton(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Icon(Icons.delete),
+                        SizedBox(width: 10),
                         NormalText(t('Delete', 'حذف')),
                       ],
                     ),

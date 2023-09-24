@@ -111,13 +111,13 @@ class _RecordFormState extends State<RecordForm> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              TextFormField(
-                onSaved: (newValue) => {if (newValue != null) _note = newValue},
-                initialValue: _note,
-                decoration: appInputDecoration(
-                    t('Note (optional)', 'ملاحظة (اختياري)'), context),
-              ),
+              // const SizedBox(height: 20),
+              // TextFormField(
+              //   onSaved: (newValue) => {if (newValue != null) _note = newValue},
+              //   initialValue: _note,
+              //   decoration: appInputDecoration(
+              //       t('Note (optional)', 'ملاحظة (اختياري)'), context),
+              // ),
               const SizedBox(height: 20),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,

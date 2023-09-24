@@ -18,13 +18,14 @@ class AppDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          SizedBox(
+          const SizedBox(
             height: 100,
             child: DrawerHeader(
-              child: Row(children: const [
+              child: Row(children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: Colors.amber,
+                  backgroundImage: AssetImage('assets/logo.jpg'),
+                  // backgroundColor: Colors.amber,
                 ),
                 SizedBox(width: 10),
                 NormalText("MONEY APP"),
@@ -35,7 +36,7 @@ class AppDrawer extends StatelessWidget {
             name: t('Plan Your Expenses', 'تخطيط مصاريفك'),
             icon: FontAwesomeIcons.clipboardList,
             callback: () {
-              Navigator.of(context).pushReplacementNamed('/plan-expenses');
+              Navigator.of(context).pushReplacementNamed('/plan-expenses/cta');
             },
           ),
           DrawerItem(
@@ -50,6 +51,20 @@ class AppDrawer extends StatelessWidget {
             icon: FontAwesomeIcons.moneyBillTrendUp,
             callback: () {
               Navigator.of(context).pushReplacementNamed('/money-saving');
+            },
+          ),
+          DrawerItem(
+            name: t('Who we are', 'من نحن'),
+            icon: FontAwesomeIcons.handHoldingHeart,
+            callback: () async {
+              Navigator.of(context).pushReplacementNamed('/dedication');
+            },
+          ),
+          DrawerItem(
+            name: t('About', 'حول التطبيق'),
+            icon: FontAwesomeIcons.circleInfo,
+            callback: () async {
+              Navigator.of(context).pushReplacementNamed('/about');
             },
           ),
           DrawerItem(

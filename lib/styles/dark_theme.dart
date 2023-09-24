@@ -19,8 +19,8 @@ ThemeData darkTheme(BuildContext context) => ThemeData(
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.dark_1,
-          backgroundColor: AppColors.yellow,
+          foregroundColor: Colors.white,
+          backgroundColor: AppColors.colors['dark']?['yellow'],
         ),
       ),
       dialogBackgroundColor: AppColors.dark_2,

@@ -16,28 +16,33 @@ class ListRecordsOfDay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = translate(context);
-    return AppCard(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GrayText(
-                  t(recordsByDay.dayEn, recordsByDay.dayAr),
-                ),
-                LTROnly(
-                  child: GrayText(
-                    '\$ ${recordsByDay.totalAmount}',
-                    canTranslate: false,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: AppCard(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GrayText(
+                    t(recordsByDay.dayEn, recordsByDay.dayAr),
                   ),
-                )
-              ],
-            ),
-            ...recordsByDay.records.map((record) => RecordTile(record)).toList()
-          ],
+                  LTROnly(
+                    child: GrayText(
+                      '\$ ${recordsByDay.totalAmount}',
+                      canTranslate: false,
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 10),
+              ...recordsByDay.records
+                  .map((record) => RecordTile(record))
+                  .toList()
+            ],
+          ),
         ),
       ),
     );
