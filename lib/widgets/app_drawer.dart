@@ -18,17 +18,17 @@ class AppDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 100,
             child: DrawerHeader(
               child: Row(children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 20,
                   backgroundImage: AssetImage('assets/logo.jpg'),
                   // backgroundColor: Colors.amber,
                 ),
-                SizedBox(width: 10),
-                NormalText("MONEY APP"),
+                const SizedBox(width: 10),
+                NormalText(t("Spend wise", "رشد ووفر")),
               ]),
             ),
           ),

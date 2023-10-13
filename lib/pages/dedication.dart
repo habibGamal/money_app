@@ -13,7 +13,7 @@ class Dedication extends StatelessWidget {
     final t = translate(context);
     return Scaffold(
       appBar: AppBar(
-        title: NormalText(t('Dedication', 'اهداء')),
+        title: NormalText(t('Who we are', 'من نحن')),
       ),
       drawer: const AppDrawer(),
       body: Padding(
@@ -21,7 +21,7 @@ class Dedication extends StatelessWidget {
         child: ListView(
           children: [
             SizableText(
-              t('Dedication', 'اهداء'),
+              t('Who we are', 'من نحن'),
               fontSize: 28,
             ),
             const SizedBox(height: 10),
@@ -32,7 +32,7 @@ class Dedication extends StatelessWidget {
             const SizedBox(height: 30),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.asset('assets/dr_yasmin.jfif'),
+              child: Image.asset('assets/dr_yasmin.jpg'),
             ),
             const SizedBox(height: 20),
             SizableText(

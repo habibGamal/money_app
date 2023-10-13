@@ -2,7 +2,7 @@
     package="com.example.money_app">
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
    <application
-        android:label="money_app"
+        android:label="رشد ووفر"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
